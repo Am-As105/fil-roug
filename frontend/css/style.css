@@ -479,6 +479,94 @@ a {
   outline-offset: 2px;
 }
 
+.stats {
+  display: flex;
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.stat-box {
+  flex: 1;
+  padding: 16px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.7);
+  text-align: center;
+}
+
+.stat-box h3 {
+  margin: 0;
+  color: var(--accent);
+}
+
+.disasters-tools {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.search {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--border);
+}
+
+.filter {
+  padding: 10px;
+  border: 1px solid var(--border);
+}
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
+}
+
+.auth {
+  display: flex;
+  justify-content: center;
+  margin: 40px 0;
+}
+
+.auth-box {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.8);
+}
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+}
+.auth-box h2 {
+  margin-bottom: 16px;
+}
+
+.auth-link {
+  margin-top: 12px;
+  font-size: 0.9rem;
+}
+
+.btn-view {
+  padding: 6px 10px;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.btn-delete {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
 .form-actions {
   display: flex;
   justify-content: flex-end;
