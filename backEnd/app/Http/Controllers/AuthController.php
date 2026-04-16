@@ -40,8 +40,8 @@ class AuthController extends Controller
                 return response()->json(['message' => 'Password incorrect'], 401);
             }
 
-            $token = $user->createToken('auth_token')->plainTextToken;
-            return response()->json(['user' => $user, 'token' => $token]    );
+            $code_token = $user->createToken('auth_token')->plainTextToken;
+            return response()->json(['user' => $user, 'token' => $code_token]  );
             
     }
 
