@@ -8,13 +8,13 @@ use Illuminate\Http\Request;
 class CatastropheController extends Controller
 {
     //
-    // public function index()
-    // {
-    //     $catastrophes = Catastrophe::with('type')->get();
+    public function index()
+    {
+        $catastrophes = Catastrophe::with('type')->get();
 
-    //     return response()->json($catastrophes);
+        return response()->json($catastrophes);
 
-    // }
+    }
     public function store(Request $request )
     {
         $catastrophe = Catastrophe::create([
