@@ -33,10 +33,33 @@ class CatastropheController extends Controller
     }
 
 
-    // public function delete($catastropheId)
-    // {
-    //     $catastrophe = Catastrophe::find($catastropheId);
-    //     $catastrophe->delete();
-    //     return response()->json(['message' => 'deleted']);
-    // }
+    public function delete($catastropheId)
+    {
+        $catastrophe = Catastrophe::find($catastropheId);
+        $catastrophe->delete();
+        return response()->json(['message' => 'deleted']);
+    }
+    
+
+   public function update(Request $request, $id)
+   {
+        $catastrophe = Catastrophe::find($id);
+
+        if (!$catastrophe) {
+            return response()->json(['message' => 'Not found'], 404);
+        }
+
+        $catastrophe->update([
+            'title' => $request->title ?? $catastrophe->title,
+            'description' => $request->description ?? $catastrophe->description,
+            'latitude' => $request->latitude ?? $catastrophe->latitude,
+            'longitude' => $request->longitude ?? $catastrophe->longitude,
+            'date' => $request->date ?? $catastrophe->date,
+            'severity' => $request->severity ?? $catastrophe->severity,
+            'status' => $request->status ?? $catastrophe->status,
+            'type_id' => $request->type_id ?? $catastrophe->type_id,
+    ]);
+
+        return response()->json($catastrophe);
+    }
 }
