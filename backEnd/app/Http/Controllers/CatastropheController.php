@@ -17,6 +17,16 @@ class CatastropheController extends Controller
     }
     public function store(Request $request )
     {
+
+         $request->validate([
+            'title' => 'required',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'date' => 'required|date',
+            'severity' => 'required',
+            'status' => 'required',
+            'type_id' => 'required|exists:types,id'
+        ]);
         $catastrophe = Catastrophe::create([
             'title' => $request->title,
             'description' => $request->description,
@@ -48,6 +58,16 @@ class CatastropheController extends Controller
         if (!$catastrophe) {
             return response()->json(['message' => 'Not found'], 404);
         }
+
+
+
+          $request->validate([
+            'title' => 'sometimes',
+            'latitude' => 'sometimes|numeric',
+            'longitude' => 'sometimes|numeric',
+            'date' => 'sometimes|date',
+            'type_id' => 'sometimes|exists:types,id'
+        ]);
 
         $catastrophe->update([
             'title' => $request->title ?? $catastrophe->title,
