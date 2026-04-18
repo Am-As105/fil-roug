@@ -80,4 +80,28 @@ L.marker([35.1688, -5.2636], { icon: redIcon })
     document.getElementById("message").innerText = data.message;
   });
 };
-  
+  document.querySelector("form").onsubmit = function(e) {
+  e.preventDefault();
+
+  fetch("http://127.0.0.1:8000/api/register", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    },
+    body: JSON.stringify({
+      name: this.name.value,
+      email: this.email.value,
+      telephone: this.telephone.value,
+      adress: this.adress.value,
+      password: this.password.value
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("message").innerText = data.message;
+  })
+  .catch(() => {
+    document.getElementById("message").innerText = "Error";
+  });
+};
