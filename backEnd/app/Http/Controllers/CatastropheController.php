@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Catastrophe;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
 class CatastropheController extends Controller
@@ -38,11 +39,20 @@ class CatastropheController extends Controller
             'type_id' => $request->type_id,
             
         ]);
-
+        
+        
+    $twilio = new Client(env('TWILIO_SID'),env('TWILIO_TOKEN'));
+    $twilio->messages->create(
+        
+        "+212724791194", 
+        [
+            "from" => env('TWILIO_FROM'),
+            "body" => "New Catastrophe: " . $catastrophe->title
+        ]
+    );
         return response()->json($catastrophe);
     }
-
-
+      
     public function delete($catastropheId)
     {
         $catastrophe = Catastrophe::find($catastropheId);
@@ -51,14 +61,13 @@ class CatastropheController extends Controller
     }
     
 
-   public function update(Request $request, $id)
+   public function update(Request $request, $catastropheId)
    {
-        $catastrophe = Catastrophe::find($id);
+        $catastrophe = Catastrophe::find($catastropheId);
 
         if (!$catastrophe) {
             return response()->json(['message' => 'Not found'], 404);
         }
-
 
 
           $request->validate([

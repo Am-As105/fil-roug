@@ -17,6 +17,11 @@ Route::post('/login', [AuthController::class, 'login']);
 
 
 
-Route::post('/catastrophes', [CatastropheController::class, 'store'])->middleware('auth:sanctum');
-Route::get('/catastrophes', [CatastropheController::class, 'index'])->middleware('auth:sanctum');
-Route::get('/catastrophes/{catastropheId}', [CatastropheController::class, 'delete'])->middleware('auth:sanctum');
+Route::middleware('auth:sanctum')->group(function () {
+
+    Route::post('/catastrophes', [CatastropheController::class, 'store']);
+    Route::get('/catastrophes', [CatastropheController::class, 'index']);
+    Route::put('/catastrophes/{catastropheId}', [CatastropheController::class, 'update']);
+    Route::delete('/catastrophes/{catastropheId}', [CatastropheController::class, 'delete']);
+
+});
