@@ -55,3 +55,29 @@ L.marker([34.0331, -5.0003], { icon: redIcon })
 L.marker([35.1688, -5.2636], { icon: redIcon })
   .addTo(map)
   .bindPopup("Glissement - Chefchaouen");
+
+
+
+
+
+  document.querySelector("form").onsubmit = function(e) {
+  e.preventDefault();
+
+  fetch("http://127.0.0.1:8000/api/register", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      nom: this.nom.value,
+      email: this.email.value,
+      telephone: this.telephone.value,
+      password: this.password.value
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("message").innerText = data.message;
+  });
+};
+  
