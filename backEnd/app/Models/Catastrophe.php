@@ -19,6 +19,6 @@ class Catastrophe extends Model
     ];
     public function type()
     {
-        return $this->belongsTo(type::class);
+        return $this->belongsTo(Type::class);
     }
 }
