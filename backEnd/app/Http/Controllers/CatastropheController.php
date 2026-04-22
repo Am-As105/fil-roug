@@ -122,17 +122,22 @@ class CatastropheController extends Controller
 
     private function sendAlert(Catastrophe $catastrophe): void
     {
-        if (! env('TWILIO_SID') || ! env('TWILIO_TOKEN') || ! env('TWILIO_FROM')) {
+        $sid = config('services.twilio.sid');
+        $token = config('services.twilio.token');
+        $from = config('services.twilio.from');
+        $to = config('services.twilio.to');
+
+        if (! $sid || ! $token || ! $from || ! $to) {
             return;
         }
 
         try {
-            $twilio = new TwilioClient(env('TWILIO_SID'), env('TWILIO_TOKEN'));
+            $twilio = new TwilioClient($sid, $token);
 
             $twilio->messages->create(
-                env('TWILIO_TO', '+212724791194'),
+                $to,
                 [
-                    'from' => env('TWILIO_FROM'),
+                    'from' => $from,
                     'body' => 'New Catastrophe: ' . $catastrophe->title,
                 ]
             );
