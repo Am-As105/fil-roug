@@ -3,31 +3,45 @@
 namespace App\Http\Controllers;
 
 use App\Models\Catastrophe;
-use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Twilio\Rest\Client as TwilioClient;
 
 class CatastropheController extends Controller
 {
-    //
     public function index()
     {
-        $catastrophes = Catastrophe::with('type')->get();
+        $catastrophes = Catastrophe::with('type')
+            ->latest()
+            ->get();
 
         return response()->json($catastrophes);
-
     }
-    public function store(Request $request )
-    {
 
-         $request->validate([
-            'title' => 'required',
+    public function show($catastropheId)
+    {
+        $catastrophe = Catastrophe::with('type')->find($catastropheId);
+
+        if (! $catastrophe) {
+            return response()->json(['message' => 'Not found'], 404);
+        }
+
+        return response()->json($catastrophe);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
             'date' => 'required|date',
-            'severity' => 'required',
-            'status' => 'required',
-            'type_id' => 'required|exists:types,id'
+            'severity' => 'required|string|max:255',
+            'status' => 'required|string|max:255',
+            'type_id' => 'required|exists:types,id',
         ]);
+
         $catastrophe = Catastrophe::create([
             'title' => $request->title,
             'description' => $request->description,
@@ -37,58 +51,96 @@ class CatastropheController extends Controller
             'severity' => $request->severity,
             'status' => $request->status,
             'type_id' => $request->type_id,
-            
         ]);
-        
-        
-    $twilio = new Client(env('TWILIO_SID'),env('TWILIO_TOKEN'));
-    $twilio->messages->create(
-        
-        "+212724791194", 
-        [
-            "from" => env('TWILIO_FROM'),
-            "body" => "New Catastrophe: " . $catastrophe->title
-        ]
-    );
-        return response()->json($catastrophe);
+
+        $this->sendAlert($catastrophe);
+
+        return response()->json([
+            'message' => 'Catastrophe created successfully',
+            'catastrophe' => $catastrophe->load('type'),
+        ], 201);
     }
-      
-    public function delete($catastropheId)
+
+    public function update(Request $request, $catastropheId)
     {
-        $catastrophe = Catastrophe::find($catastropheId);
-        $catastrophe->delete();
-        return response()->json(['message' => 'deleted']);
-    }
-    
+        if ($response = $this->ensureAdmin($request)) {
+            return $response;
+        }
 
-   public function update(Request $request, $catastropheId)
-   {
         $catastrophe = Catastrophe::find($catastropheId);
 
-        if (!$catastrophe) {
+        if (! $catastrophe) {
             return response()->json(['message' => 'Not found'], 404);
         }
 
-
-          $request->validate([
-            'title' => 'sometimes',
+        $validated = $request->validate([
+            'title' => 'sometimes|string|max:255',
+            'description' => 'sometimes|nullable|string',
             'latitude' => 'sometimes|numeric',
             'longitude' => 'sometimes|numeric',
             'date' => 'sometimes|date',
-            'type_id' => 'sometimes|exists:types,id'
+            'severity' => 'sometimes|string|max:255',
+            'status' => 'sometimes|string|max:255',
+            'type_id' => 'sometimes|exists:types,id',
         ]);
 
-        $catastrophe->update([
-            'title' => $request->title ?? $catastrophe->title,
-            'description' => $request->description ?? $catastrophe->description,
-            'latitude' => $request->latitude ?? $catastrophe->latitude,
-            'longitude' => $request->longitude ?? $catastrophe->longitude,
-            'date' => $request->date ?? $catastrophe->date,
-            'severity' => $request->severity ?? $catastrophe->severity,
-            'status' => $request->status ?? $catastrophe->status,
-            'type_id' => $request->type_id ?? $catastrophe->type_id,
-    ]);
+        $catastrophe->update($validated);
 
-        return response()->json($catastrophe);
+        return response()->json([
+            'message' => 'Catastrophe updated successfully',
+            'catastrophe' => $catastrophe->fresh('type'),
+        ]);
+    }
+
+    public function delete(Request $request, $catastropheId)
+    {
+        if ($response = $this->ensureAdmin($request)) {
+            return $response;
+        }
+
+        $catastrophe = Catastrophe::find($catastropheId);
+
+        if (! $catastrophe) {
+            return response()->json(['message' => 'Not found'], 404);
+        }
+
+        $catastrophe->delete();
+
+        return response()->json(['message' => 'deleted']);
+    }
+
+    private function ensureAdmin(Request $request)
+    {
+        $user = $request->user();
+
+        if (! $user || ! $user->isAdmin()) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        return null;
+    }
+
+    private function sendAlert(Catastrophe $catastrophe): void
+    {
+        if (! env('TWILIO_SID') || ! env('TWILIO_TOKEN') || ! env('TWILIO_FROM')) {
+            return;
+        }
+
+        try {
+            $twilio = new TwilioClient(env('TWILIO_SID'), env('TWILIO_TOKEN'));
+
+            $twilio->messages->create(
+                env('TWILIO_TO', '+212724791194'),
+                [
+                    'from' => env('TWILIO_FROM'),
+                    'body' => 'New Catastrophe: ' . $catastrophe->title,
+                ]
+            );
+        } catch (\Throwable $throwable) {
+            Log::warning('Twilio alert failed', [
+                'catastrophe_id' => $catastrophe->id,
+                'error' => $throwable->getMessage(),
+            ]);
+        }
     }
 }
