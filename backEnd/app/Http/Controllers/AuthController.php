@@ -8,50 +8,70 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-
- public function register(Request $request)
+    public function register(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'telephone' => 'required',
-            'adress' => 'required',
-            'password' => 'required|min:6'
+            'email' => 'required|email|unique:users,email',
+            'telephone' => 'required|string|max:30',
+            'adress' => 'required|string|max:255',
+            'password' => 'required|string|min:6',
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email'=> $request->email,
-            'phone'=> $request->telephone,
-            'adress'=> $request->adress,
-            'password'=> Hash::make($request->password)
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'phone' => $validated['telephone'],
+            'adress' => $validated['adress'],
+            'password' => $validated['password'],
+            'role' => 'citizen',
         ]);
-        
+
         return response()->json([
-            'message' => 'Success'
-        ]);
+            'message' => 'Account created successfully',
+            'role' => $user->normalizedRole(),
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'adress' => $user->adress,
+                'role' => $user->normalizedRole(),
+            ],
+        ], 201);
     }
 
     public function login(Request $request)
     {
-            $user = User::where('email', $request->email)->first();
-            if(!$user)
-            {
-                 return response()->json(['message' => 'User not found'], 404);
-            }
-             if (!Hash::check($request->password, $user->password))
-            {
-                return response()->json(['message' => 'Password incorrect'], 401);
-            }
+        $validated = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
 
-            $code_token = $user->createToken('auth_token')->plainTextToken;
-            return response()->json(['user' => $user, 'token' => $code_token]  );
-            
+        $user = User::where('email', $validated['email'])->first();
+
+        if (! $user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        if (! Hash::check($validated['password'], $user->password)) {
+            return response()->json(['message' => 'Password incorrect'], 401);
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+        $role = $user->normalizedRole();
+
+        return response()->json([
+            'token' => $token,
+            'role' => $role,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'adress' => $user->adress,
+                'role' => $role,
+            ],
+        ]);
     }
-
-
-    
-    
-
-    
 }
