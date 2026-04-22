@@ -25,6 +25,7 @@ class User extends Authenticatable
         'password',
         'phone',
         'adress',
+        'role',
     ];
 
     /**
@@ -48,5 +49,19 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function normalizedRole(): string
+    {
+        return match (strtolower(trim((string) $this->role))) {
+            'admin' => 'admin',
+            'citizen', 'citoyen', 'user' => 'citizen',
+            default => 'citizen',
+        };
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->normalizedRole() === 'admin';
     }
 }
