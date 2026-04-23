@@ -189,16 +189,16 @@ if (disasterForm) {
   });
 }
 
-// function deleteDisaster(id) {
-//   fetch(API_BASE_URL + "/catastrophes/" + id, {
-//     method: "DELETE",
-//     headers: {
-//       Authorization: "Bearer " + token
-//     }
-//   })
-//   .then(() => location.reload())
-//   .catch(() => alert("Error"));
-// }
+function deleteDisaster(id) {
+  fetch(API_BASE_URL + "/catastrophes/" + id, {
+    method: "DELETE",
+    headers: {
+      Authorization: "Bearer " + token
+    }
+  })
+  .then(() => location.reload())
+  .catch(() => alert("Error"));
+}
 
 
 
