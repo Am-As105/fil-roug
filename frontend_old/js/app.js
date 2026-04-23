@@ -38,25 +38,25 @@ function getStatusVariant(status = "") {
   return "neutral";
 }
 
-// async function requestJson(url, options = {}) {
-//   const response = await fetch(url, options);
-//   const data = await response.json().catch(() => ({}));
+async function requestJson(url, options = {}) {
+  const response = await fetch(url, options);
+  const data = await response.json().catch(() => ({}));
 
-//   if (!response.ok) {
-//     throw new Error(data.message || "Erreur");
-//   }
+  if (!response.ok) {
+    throw new Error(data.message || "Erreur");
+  }
 
-//   return data;
-// }
+  return data;
+}
 
-// const navbar = document.querySelector(".navbar");
-// const menuBtn = document.querySelector(".menu-btn");
+const navbar = document.querySelector(".navbar");
+const menuBtn = document.querySelector(".menu-btn");
 
-// if (navbar && menuBtn) {
-//   menuBtn.addEventListener("click", () => {
-//     navbar.classList.toggle("is-open");
-//   });
-// }
+if (navbar && menuBtn) {
+  menuBtn.addEventListener("click", () => {
+    navbar.classList.toggle("is-open");
+  });
+}
 
 // const addDisasterLinks = document.querySelectorAll(".add-disaster-toggle");
 // const addDisasterSection = document.getElementById("add-disaster");
