@@ -71,7 +71,7 @@ fetch("http://127.0.0.1:8000/api/catastrophes/" + id, { headers })
 
 
     const ctx = document.getElementById("myChart");
-
+//
 if (ctx) {
 
   const start = new Date(d.date);
