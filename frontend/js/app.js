@@ -257,27 +257,27 @@ if (searchInput && cardsContainer) {
 
 
 
-// const filter = document.querySelector(".filter");
+const filter = document.querySelector(".filter");
 
-// if (filter && cardsContainer) {
-//   filter.addEventListener("change", function () {
+if (filter && cardsContainer) {
+  filter.addEventListener("change", function () {
 
-//     const value = this.value.toLowerCase();
+    const value = this.value.toLowerCase();
 
-//     const cards = document.querySelectorAll(".card");
+    const cards = document.querySelectorAll(".card");
 
-//     cards.forEach(card => {
-//       const text = card.innerText.toLowerCase();
+    cards.forEach(card => {
+      const text = card.innerText.toLowerCase();
 
-//       if (value === "toutes") {
-//         card.style.display = "block";
-//       } else {
-//         card.style.display = text.includes(value) ? "block" : "none";
-//       }
-//     });
+      if (value === "toutes") {
+        card.style.display = "block";
+      } else {
+        card.style.display = text.includes(value) ? "block" : "none";
+      }
+    });
 
-//   });
-// }
+  });
+}
 
 
 
