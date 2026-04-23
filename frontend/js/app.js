@@ -367,52 +367,51 @@ if (loginForm) {
 
 
 
-// const mapElement = document.getElementById("map");
+const mapElement = document.getElementById("map");
 
-// if (mapElement && typeof L !== "undefined") {
+if (mapElement && typeof L !== "undefined") {
 
-//   const map = L.map("map").setView([31.7917, -7.0926], 6);
+  const map = L.map("map").setView([31.7917, -7.0926], 6);
 
-//   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
-//     .addTo(map);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
+    .addTo(map);
 
-//   fetch("http://127.0.0.1:8000/api/catastrophes")
-//     .then(res => res.json())
-//     .then(data => {
+  fetch("http://127.0.0.1:8000/api/catastrophes")
+    .then(res => res.json())
+    .then(data => {
 
-//       const list = Array.isArray(data) ? data : data.data || [];
+      const list = Array.isArray(data) ? data : data.data || [];
 
-//       list.forEach(d => {
+      list.forEach(d => {
 
-//         const lat = parseFloat(d.latitude);
-//         const lng = parseFloat(d.longitude);
+        const lat = parseFloat(d.latitude);
+        const lng = parseFloat(d.longitude);
 
-//         if (!isNaN(lat) && !isNaN(lng)) {
+        if (!isNaN(lat) && !isNaN(lng)) {
 
-//           L.marker([lat, lng])
-//             .addTo(map)
-//             .bindPopup(`
-//               <b>${d.title}</b><br>
-//               ${d.description}
-//             `);
+          L.marker([lat, lng])
+            .addTo(map)
+            .bindPopup(`
+              <b>${d.title}</b><br>
+              ${d.description}
+            `);
 
-//         }
+        }
 
-//       });
+      });
 
-//     })
-//     .catch(() => {
-//       console.log("Error loading disasters");
-//     });
-// }
+    })
+    .catch(() => {
+      console.log("Error loading disasters");
+    });
+}
 
-// const logoutBtn = document.getElementById("logoutBtn");
+const logoutBtn = document.getElementById("logoutBtn");
 
-// if (logoutBtn) {
-//   logoutBtn.addEventListener("click", () => {
-//     localStorage.removeItem("token");
-//     localStorage.removeItem("role");
-//     window.location.href = "login.html";
-//   });
-// }
-//
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    window.location.href = "login.html";
+  });
+}
