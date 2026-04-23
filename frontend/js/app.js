@@ -160,34 +160,34 @@ if (cardsContainer) {
 
 
 
-// const disasterForm = document.getElementById("disasterForm");
+const disasterForm = document.getElementById("disasterForm");
 
-// if (disasterForm) {
-//   disasterForm.addEventListener("submit", function(e) {
-//     e.preventDefault();
+if (disasterForm) {
+  disasterForm.addEventListener("submit", function(e) {
+    e.preventDefault();
 
-//     fetch(API_BASE_URL + "/catastrophes", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//         "Authorization": "Bearer " + token
-//       },
-//       body: JSON.stringify({
-//         title: this.title.value,
-//         description: this.description.value,
-//         latitude: this.latitude.value,
-//         longitude: this.longitude.value,
-//         date: this.date.value,
-//         severity: this.severity.value,
-//         status: this.status.value,
-//         type_id: this.type_id.value
-//       })
-//     })
-//     .then(res => res.json())
-//     .then(() => location.reload())
-//     .catch(() => alert("Erreur"));
-//   });
-// }
+    fetch(API_BASE_URL + "/catastrophes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify({
+        title: this.title.value,
+        description: this.description.value,
+        latitude: this.latitude.value,
+        longitude: this.longitude.value,
+        date: this.date.value,
+        severity: this.severity.value,
+        status: this.status.value,
+        type_id: this.type_id.value
+      })
+    })
+    .then(res => res.json())
+    .then(() => location.reload())
+    .catch(() => alert("Erreur"));
+  });
+}
 
 // function deleteDisaster(id) {
 //   fetch(API_BASE_URL + "/catastrophes/" + id, {
