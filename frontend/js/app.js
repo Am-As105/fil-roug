@@ -281,84 +281,84 @@ if (filter && cardsContainer) {
 
 
 
-// const registerForm = document.getElementById("registerForm");
-// const registerMessage = document.getElementById("message");
+const registerForm = document.getElementById("registerForm");
+const registerMessage = document.getElementById("message");
 
-// if (registerForm) {
-//   registerForm.addEventListener("submit", function (e) {
-//     e.preventDefault();
+if (registerForm) {
+  registerForm.addEventListener("submit", function (e) {
+    e.preventDefault();
 
-//     fetch(API_BASE_URL + "/register", {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({
-//         name: this.nom.value,
-//         email: this.email.value,
-//         telephone: this.telephone.value,
-//         adress: this.adress.value,
-//         password: this.password.value
-//       })
-//     })
-//     .then(res => res.json())
-//     .then(data => {
-//       registerMessage.innerText = "Compte créé avec succès";
-//       registerMessage.style.color = "green";
-//       registerForm.reset();
-//       setTimeout(() => {
-//         window.location.href = "login.html";
-//       }, 1000);
-//     })
-//     .catch(() => {
-//       registerMessage.innerText = "Erreur inscription";
-//       registerMessage.style.color = "red";
-//     });
-//   });
-// }
+    fetch(API_BASE_URL + "/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: this.nom.value,
+        email: this.email.value,
+        telephone: this.telephone.value,
+        adress: this.adress.value,
+        password: this.password.value
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      registerMessage.innerText = "Compte créé avec succès";
+      registerMessage.style.color = "green";
+      registerForm.reset();
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 1000);
+    })
+    .catch(() => {
+      registerMessage.innerText = "Erreur inscription";
+      registerMessage.style.color = "red";
+    });
+  });
+}
 
-// const loginForm = document.getElementById("loginForm");
-// const loginMessage = document.getElementById("loginMessage");
+const loginForm = document.getElementById("loginForm");
+const loginMessage = document.getElementById("loginMessage");
 
-// if (loginForm) {
-//   loginForm.addEventListener("submit", function (e) {
-//     e.preventDefault();
+if (loginForm) {
+  loginForm.addEventListener("submit", function (e) {
+    e.preventDefault();
 
-//     fetch(API_BASE_URL + "/login", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json"
-//       },
-//       body: JSON.stringify({
-//         email: this.email.value,
-//         password: this.password.value
-//       })
-//     })
-//     .then(res => res.json())
-//     .then(data => {
+    fetch(API_BASE_URL + "/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: this.email.value,
+        password: this.password.value
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
 
-//       if (!data.token) {
-//         throw new Error("Login failed");
-//       }
+      if (!data.token) {
+        throw new Error("Login failed");
+      }
 
-//       localStorage.setItem("token", data.token);
+      localStorage.setItem("token", data.token);
 
-//       if (data.role) {
-//         localStorage.setItem("role", data.role);
-//       }
+      if (data.role) {
+        localStorage.setItem("role", data.role);
+      }
 
-//       loginMessage.innerText = "Connexion réussie";
-//       loginMessage.style.color = "green";
+      loginMessage.innerText = "Connexion réussie";
+      loginMessage.style.color = "green";
 
-//       setTimeout(() => {
-//         window.location.href = "index.html";
-//       }, 800);
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 800);
 
-//     })
-//     .catch(() => {
-//       loginMessage.innerText = "Email ou mot de passe incorrect";
-//       loginMessage.style.color = "red";
-//     });
-//   });
-// }
+    })
+    .catch(() => {
+      loginMessage.innerText = "Email ou mot de passe incorrect";
+      loginMessage.style.color = "red";
+    });
+  });
+}
 
 
 
