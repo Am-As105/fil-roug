@@ -236,23 +236,23 @@ if (citySelect) {
 }
 
 
-// const searchInput = document.querySelector(".search");
+const searchInput = document.querySelector(".search");
 
-// if (searchInput && cardsContainer) {
-//   searchInput.addEventListener("input", function () {
+if (searchInput && cardsContainer) {
+  searchInput.addEventListener("input", function () {
 
-//     const value = this.value.toLowerCase();
+    const value = this.value.toLowerCase();
 
-//     const cards = document.querySelectorAll(".card");
+    const cards = document.querySelectorAll(".card");
 
-//     cards.forEach(card => {
-//       const text = card.innerText.toLowerCase();
+    cards.forEach(card => {
+      const text = card.innerText.toLowerCase();
 
-//       card.style.display = text.includes(value) ? "block" : "none";
-//     });
+      card.style.display = text.includes(value) ? "block" : "none";
+    });
 
-//   });
-// }
+  });
+}
 
 
 
