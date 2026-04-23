@@ -125,7 +125,7 @@ class CatastropheController extends Controller
         $sid = config('services.twilio.sid');
         $token = config('services.twilio.token');
         $from = config('services.twilio.from');
-        $to = config('services.twilio.to');
+        $to = config('services.twilio.to'); 
 
         if (! $sid || ! $token || ! $from || ! $to) {
             return;
