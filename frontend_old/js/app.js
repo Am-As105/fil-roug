@@ -28,15 +28,15 @@ function normalizeKey(value = "") {
     .replace(/[^a-z0-9]+/g, "");
 }
 
-// function getStatusVariant(status = "") {
-//   const key = normalizeKey(status);
+function getStatusVariant(status = "") {
+  const key = normalizeKey(status);
 
-//   if (key === "critique" || key === "critical") return "critical";
-//   if (key === "encours" || key === "inprogress") return "progress";
-//   if (key === "elevee" || key === "high") return "high";
+  if (key === "critique" || key === "critical") return "critical";
+  if (key === "encours" || key === "inprogress") return "progress";
+  if (key === "elevee" || key === "high") return "high";
 
-//   return "neutral";
-// }
+  return "neutral";
+}
 
 // async function requestJson(url, options = {}) {
 //   const response = await fetch(url, options);
