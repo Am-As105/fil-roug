@@ -1,15 +1,23 @@
 const API_BASE_URL = "http://127.0.0.1:8000/api";
+
 const token = localStorage.getItem("token");
 const role = localStorage.getItem("role") || "";
 const isAdmin = role === "admin";
 
+const addBtn = document.querySelector(".add-disaster-toggle");
+const form = document.getElementById("add-disaster");
+
+if (!isAdmin) {
+  if (addBtn) addBtn.style.display = "none";
+  if (form) form.style.display = "none";
+}
 function escapeHtml(value = "") {
   return String(value)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+    .replace(/'/g, "&#39;"); 
 }
 
 function normalizeKey(value = "") {
@@ -23,56 +31,22 @@ function normalizeKey(value = "") {
 function getStatusVariant(status = "") {
   const key = normalizeKey(status);
 
-  if (key === "critique" || key === "critical") {
-    return "critical";
-  }
-
-  if (key === "encours" || key === "inprogress" || key === "progress") {
-    return "progress";
-  }
-
-  if (key === "elevee" || key === "high") {
-    return "high";
-  }
+  if (key === "critique" || key === "critical") return "critical";
+  if (key === "encours" || key === "inprogress") return "progress";
+  if (key === "elevee" || key === "high") return "high";
 
   return "neutral";
 }
 
-function setMessage(element, text = "", type = "") {
-  if (!element) {
-    return;
-  }
-
-  element.textContent = text;
-  element.classList.remove("success", "error");
-
-  if (type) {
-    element.classList.add(type);
-  }
-}
-
-function setFormBusy(form, isBusy) {
-  if (!form) {
-    return;
-  }
-
-  form.classList.toggle("loading", isBusy);
-
-  const submitButton = form.querySelector(".form-submit");
-  if (submitButton) {
-    submitButton.disabled = isBusy;
-  }
-}
-
 async function requestJson(url, options = {}) {
   const response = await fetch(url, options);
-  const payload = await response.json().catch(() => ({}));
+  const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(payload.message || payload.error || "Une erreur est survenue.");
+    throw new Error(data.message || "Erreur");
   }
 
-  return payload;
+  return data;
 }
 
 const navbar = document.querySelector(".navbar");
@@ -80,8 +54,7 @@ const menuBtn = document.querySelector(".menu-btn");
 
 if (navbar && menuBtn) {
   menuBtn.addEventListener("click", () => {
-    const isOpen = navbar.classList.toggle("is-open");
-    menuBtn.setAttribute("aria-expanded", String(isOpen));
+    navbar.classList.toggle("is-open");
   });
 }
 
@@ -89,319 +62,356 @@ const addDisasterLinks = document.querySelectorAll(".add-disaster-toggle");
 const addDisasterSection = document.getElementById("add-disaster");
 
 if (!token) {
-  document.querySelectorAll(".nav-primary, #logoutBtn").forEach((element) => {
-    element.style.display = "none";
+  document.querySelectorAll(".nav-primary, #logoutBtn").forEach(el => {
+    el.style.display = "none";
   });
-}
-
-if (addDisasterSection) {
-  if (!token) {
-    addDisasterSection.classList.add("is-hidden");
-  } else if (window.location.hash === "#add-disaster") {
-    addDisasterSection.classList.remove("is-hidden");
-
-    window.setTimeout(() => {
-      addDisasterSection.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 0);
-  }
 }
 
 if (addDisasterLinks.length && addDisasterSection) {
-  addDisasterLinks.forEach((link) => {
-    link.addEventListener("click", (event) => {
-      event.preventDefault();
+  addDisasterLinks.forEach(link => {
+    link.addEventListener("click", e => {
+      e.preventDefault();
       addDisasterSection.classList.toggle("is-hidden");
     });
-  });
+  }); 
 }
 
-const dashboardMap = document.getElementById("map");
+
+
+
+
+
+
+
+
+
+
+
+
 const cardsContainer = document.getElementById("cards-container");
-
-if (dashboardMap && cardsContainer && typeof L !== "undefined") {
-  const map = L.map("map", {
-    zoomControl: true,
-    scrollWheelZoom: false,
-    doubleClickZoom: false,
-    dragging: true,
-  }).setView([31.7917, -7.0926], 6);
-
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap contributors",
-  }).addTo(map);
-
-  const redIcon = L.icon({
-    iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
-    iconSize: [40, 40],
-    iconAnchor: [20, 40],
-  });
-
-  L.marker([33.5731, -7.5898], { icon: redIcon }).addTo(map).bindPopup("Casablanca");
-}
-
-const registerForm = document.getElementById("registerForm");
-const registerMessage = document.querySelector("#registerForm .message");
-
-if (registerForm) {
-  registerForm.addEventListener("submit", async function (event) {
-    event.preventDefault();
-    setFormBusy(registerForm, true);
-    setMessage(registerMessage, "");
-
-    try {
-      const data = await requestJson(`${API_BASE_URL}/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: this.nom.value,
-          email: this.email.value,
-          telephone: this.telephone.value,
-          adress: this.adress.value,
-          password: this.password.value,
-        }),
-      });
-
-      setMessage(registerMessage, data.message || "Compte créé avec succès. Redirection...", "success");
-      registerForm.reset();
-
-      window.setTimeout(() => {
-        window.location.href = "login.html";
-      }, 900);
-    } catch (error) {
-      setMessage(registerMessage, error.message, "error");
-    } finally {
-      setFormBusy(registerForm, false);
-    }
-  });
-}
-
-const loginForm = document.getElementById("loginForm");
-const loginMessage = document.querySelector("#loginForm .message");
-
-if (loginForm) {
-  loginForm.addEventListener("submit", async function (event) {
-    event.preventDefault();
-    setFormBusy(loginForm, true);
-    setMessage(loginMessage, "");
-
-    try {
-      const data = await requestJson(`${API_BASE_URL}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: this.email.value,
-          password: this.password.value,
-        }),
-      });
-
-      if (!data.token) {
-        throw new Error("Réponse de connexion invalide.");
-      }
-
-      localStorage.setItem("token", data.token);
-
-      if (Object.prototype.hasOwnProperty.call(data, "role")) {
-        if (data.role) {
-          localStorage.setItem("role", data.role);
-        } else {
-          localStorage.removeItem("role");
-        }
-      }
-
-      window.location.href = "index.html";
-    } catch (error) {
-      setMessage(loginMessage, error.message, "error");
-    } finally {
-      setFormBusy(loginForm, false);
-    }
-  });
-}
-
-const logoutBtn = document.getElementById("logoutBtn");
-
-if (logoutBtn) {
-  logoutBtn.addEventListener("click", function () {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    window.location.href = "login.html";
-  });
-}
-
-const disasterForm = document.getElementById("disasterForm");
-const disasterMessage = document.getElementById("msg");
-
-if (disasterForm) {
-  disasterForm.addEventListener("submit", async function (event) {
-    event.preventDefault();
-    setFormBusy(disasterForm, true);
-    setMessage(disasterMessage, "");
-
-    try {
-      const headers = { "Content-Type": "application/json" };
-
-      if (token) {
-        headers.Authorization = `Bearer ${token}`;
-      }
-
-      const data = await requestJson(`${API_BASE_URL}/catastrophes`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          title: this.title.value,
-          description: this.description.value,
-          latitude: this.latitude.value,
-          longitude: this.longitude.value,
-          date: this.date.value,
-          severity: this.severity.value,
-          status: this.status.value,
-          type_id: this.type_id.value,
-        }),
-      });
-
-      setMessage(disasterMessage, data.message || "Signalement ajouté avec succès.", "success");
-      disasterForm.reset();
-
-      window.setTimeout(() => {
-        window.location.reload();
-      }, 900);
-    } catch (error) {
-      setMessage(disasterMessage, error.message, "error");
-    } finally {
-      setFormBusy(disasterForm, false);
-    }
-  });
-}
 
 if (cardsContainer) {
   const options = token
-    ? {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+    ? { headers: { Authorization: "Bearer " + token } }
     : {};
 
-  requestJson(`${API_BASE_URL}/catastrophes`, options)
-    .then((data) => {
-      const disasters = Array.isArray(data) ? data : data.data || [];
+  requestJson(API_BASE_URL +  "/catastrophes", options)
+    .then(data => {
 
-      if (!disasters.length) {
-        cardsContainer.innerHTML = `
-          <p class="empty-state">Aucun signalement pour le moment.</p>
-        `;
-        return;
-      }
+      const list = Array.isArray(data) ? data : data.data || [];
 
-      cardsContainer.innerHTML = disasters
-        .map((disaster) => {
-          const statusVariant = getStatusVariant(disaster.status);
+      let total = 0;
+      let critical = 0;
+      let progress = 0;
 
-          return `
-            <article class="card">
-              <div class="card-header">
-                <div>
-                  <p class="card-eyebrow">Signalement #${escapeHtml(disaster.id)}</p>
-                  <h3>${escapeHtml(disaster.title || "Sans titre")}</h3>
-                </div>
+      cardsContainer.innerHTML = "";
 
-                <span class="badge badge--${statusVariant}">
-                  ${escapeHtml(disaster.status || "Inconnu")}
-                </span>
-              </div>
+      list.forEach(d => {
 
-              <div class="card-body">
-                <p><strong>Zone:</strong> ${escapeHtml(disaster.description || "-")}</p>
-                <p><strong>Date:</strong> ${escapeHtml(disaster.date || "-")}</p>
-                ${
-                  disaster.severity
-                    ? `<p><strong>Niveau:</strong> ${escapeHtml(disaster.severity)}</p>`
-                    : ""
-                }
-              </div>
+        total++;
 
-              <div class="card-footer">
-                <a href="details.html?id=${encodeURIComponent(disaster.id)}" class="btn btn-view">Details</a>
+        const statusKey = normalizeKey(d.status);
 
-                ${
-                  isAdmin
-                    ? `
-                      <button class="btn edit" type="button" onclick='editDisaster(${JSON.stringify(disaster.id)})'>Edit</button>
-                      <button class="btn delete" type="button" onclick='deleteDisaster(${JSON.stringify(disaster.id)})'>Delete</button>
-                    `
-                    : ""
-                }
-              </div>
-            </article>
-          `;
-        })
-        .join("");
+        if (statusKey === "critique") critical++;
+        if (statusKey === "encours" || statusKey === "progress") progress++;
+
+        const status = getStatusVariant(d.status);
+        cardsContainer.innerHTML += `
+  <div class="card">
+    <div class="card-image">
+      <img src="${d.image_url || 'assets/placeholder.jpg'}" alt="${escapeHtml(d.title)}">
+    </div>
+    <div class="card-content">
+      <span class="badge ${status}">${escapeHtml(d.status)}</span>
+      <h3>${escapeHtml(d.title)}</h3>
+      <p>${escapeHtml(d.description)}</p>
+      <p><strong>Date:</strong> ${escapeHtml(d.date)}</p>
+      
+      <div class="card-actions">
+        <a href="details.html?id=${d.id}" class="btn-details">View Details →</a>
+        ${isAdmin ? `<button class="btn-delete" onclick="deleteDisaster(${d.id})">Delete</button>` : ""}
+        ${isAdmin ? `<a href="edit.html?id=${d.id}" class="btn-edit">Edit</a>` : ""}
+      </div>
+    </div>
+  </div>
+`;
+      });
+
+      const totalEl = document.getElementById("totalCount");
+      const criticalEl = document.getElementById("criticalCount");
+      const progressEl = document.getElementById("progressCount");
+
+      if (totalEl) totalEl.innerText = total;
+      if (criticalEl) criticalEl.innerText = critical;
+      if (progressEl) progressEl.innerText = progress;
+
     })
-    .catch((error) => {
-      cardsContainer.innerHTML = `
-        <p class="empty-state error">${escapeHtml(error.message || "Impossible de charger les signalements.")}</p>
-      `;
+    .catch(err => {
+      console.log(err);
+      cardsContainer.innerHTML = "Erreur chargement";
     });
 }
 
-const citySelect = document.getElementById("citySelect");
 
-if (citySelect) {
-  const fallbackCities = [
-    "Casablanca",
-    "Rabat",
-    "Marrakech",
-    "Fes",
-    "Tangier",
-    "Agadir",
-    "Oujda",
-    "Meknes",
-  ];
 
-  const populateCities = (cities) => {
-    citySelect.innerHTML = "<option value=''>Choisir une ville</option>";
 
-    cities.forEach((city) => {
-      citySelect.innerHTML += `<option value="${escapeHtml(city)}">${escapeHtml(city)}</option>`;
-    });
-  };
 
-  fetch("https://countriesnow.space/api/v0.1/countries/cities", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      country: "Morocco",
-    }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      const cities = Array.isArray(data?.data) && data.data.length ? data.data : fallbackCities;
-      populateCities(cities);
-    })
-    .catch(() => {
-      populateCities(fallbackCities);
-    });
-}
 
-// CRUD helpers used by the card buttons.
-function deleteDisaster(id) {
-  if (!window.confirm("Supprimer ce signalement ?")) {
-    return;
-  }
 
-  requestJson(`${API_BASE_URL}/catastrophes/${id}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token") || token || ""}`,
-    },
-  })
-    .then(() => window.location.reload())
-    .catch((error) => {
-      window.alert(error.message || "Impossible de supprimer le signalement.");
-    });
-}
 
-function editDisaster(id) {
-  window.location.href = `edit.html?id=${encodeURIComponent(id)}`;
-}
+
+// const disasterForm = document.getElementById("disasterForm");
+
+// if (disasterForm) {
+//   disasterForm.addEventListener("submit", function(e) {
+//     e.preventDefault();
+
+//     fetch(API_BASE_URL + "/catastrophes", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//         "Authorization": "Bearer " + token
+//       },
+//       body: JSON.stringify({
+//         title: this.title.value,
+//         description: this.description.value,
+//         latitude: this.latitude.value,
+//         longitude: this.longitude.value,
+//         date: this.date.value,
+//         severity: this.severity.value,
+//         status: this.status.value,
+//         type_id: this.type_id.value
+//       })
+//     })
+//     .then(res => res.json())
+//     .then(() => location.reload())
+//     .catch(() => alert("Erreur"));
+//   });
+// }
+
+// function deleteDisaster(id) {
+//   fetch(API_BASE_URL + "/catastrophes/" + id, {
+//     method: "DELETE",
+//     headers: {
+//       Authorization: "Bearer " + token
+//     }
+//   })
+//   .then(() => location.reload())
+//   .catch(() => alert("Error"));
+// }
+
+
+
+
+// const citySelect = document.getElementById("citySelect");
+
+// if (citySelect) {
+//   fetch("https://countriesnow.space/api/v0.1/countries/cities", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json"
+//     },
+//     body: JSON.stringify({
+//       country: "Morocco"
+//     })
+//   })
+//   .then(res => res.json())
+//   .then(data => {
+
+//     console.log(data);
+
+//     citySelect.innerHTML = "";
+
+//     if (data.data) {
+//       data.data.forEach(city => {
+//         citySelect.innerHTML += `<option value="${city}">${city}</option>`;
+//       });
+//     }
+
+//   })
+//   .catch(err => {
+//     console.log(err);
+//     citySelect.innerHTML = "<option>Error</option>";
+//   });
+// }
+
+
+// const searchInput = document.querySelector(".search");
+
+// if (searchInput && cardsContainer) {
+//   searchInput.addEventListener("input", function () {
+
+//     const value = this.value.toLowerCase();
+
+//     const cards = document.querySelectorAll(".card");
+
+//     cards.forEach(card => {
+//       const text = card.innerText.toLowerCase();
+
+//       card.style.display = text.includes(value) ? "block" : "none";
+//     });
+
+//   });
+// }
+
+
+
+
+// const filter = document.querySelector(".filter");
+
+// if (filter && cardsContainer) {
+//   filter.addEventListener("change", function () {
+
+//     const value = this.value.toLowerCase();
+
+//     const cards = document.querySelectorAll(".card");
+
+//     cards.forEach(card => {
+//       const text = card.innerText.toLowerCase();
+
+//       if (value === "toutes") {
+//         card.style.display = "block";
+//       } else {
+//         card.style.display = text.includes(value) ? "block" : "none";
+//       }
+//     });
+
+//   });
+// }
+
+
+
+// const registerForm = document.getElementById("registerForm");
+// const registerMessage = document.getElementById("message");
+
+// if (registerForm) {
+//   registerForm.addEventListener("submit", function (e) {
+//     e.preventDefault();
+
+//     fetch(API_BASE_URL + "/register", {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({
+//         name: this.nom.value,
+//         email: this.email.value,
+//         telephone: this.telephone.value,
+//         adress: this.adress.value,
+//         password: this.password.value
+//       })
+//     })
+//     .then(res => res.json())
+//     .then(data => {
+//       registerMessage.innerText = "Compte créé avec succès";
+//       registerMessage.style.color = "green";
+//       registerForm.reset();
+//       setTimeout(() => {
+//         window.location.href = "login.html";
+//       }, 1000);
+//     })
+//     .catch(() => {
+//       registerMessage.innerText = "Erreur inscription";
+//       registerMessage.style.color = "red";
+//     });
+//   });
+// }
+
+// const loginForm = document.getElementById("loginForm");
+// const loginMessage = document.getElementById("loginMessage");
+
+// if (loginForm) {
+//   loginForm.addEventListener("submit", function (e) {
+//     e.preventDefault();
+
+//     fetch(API_BASE_URL + "/login", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json"
+//       },
+//       body: JSON.stringify({
+//         email: this.email.value,
+//         password: this.password.value
+//       })
+//     })
+//     .then(res => res.json())
+//     .then(data => {
+
+//       if (!data.token) {
+//         throw new Error("Login failed");
+//       }
+
+//       localStorage.setItem("token", data.token);
+
+//       if (data.role) {
+//         localStorage.setItem("role", data.role);
+//       }
+
+//       loginMessage.innerText = "Connexion réussie";
+//       loginMessage.style.color = "green";
+
+//       setTimeout(() => {
+//         window.location.href = "index.html";
+//       }, 800);
+
+//     })
+//     .catch(() => {
+//       loginMessage.innerText = "Email ou mot de passe incorrect";
+//       loginMessage.style.color = "red";
+//     });
+//   });
+// }
+
+
+
+
+
+
+
+
+// const mapElement = document.getElementById("map");
+
+// if (mapElement && typeof L !== "undefined") {
+
+//   const map = L.map("map").setView([31.7917, -7.0926], 6);
+
+//   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
+//     .addTo(map);
+
+//   fetch("http://127.0.0.1:8000/api/catastrophes")
+//     .then(res => res.json())
+//     .then(data => {
+
+//       const list = Array.isArray(data) ? data : data.data || [];
+
+//       list.forEach(d => {
+
+//         const lat = parseFloat(d.latitude);
+//         const lng = parseFloat(d.longitude);
+
+//         if (!isNaN(lat) && !isNaN(lng)) {
+
+//           L.marker([lat, lng])
+//             .addTo(map)
+//             .bindPopup(`
+//               <b>${d.title}</b><br>
+//               ${d.description}
+//             `);
+
+//         }
+
+//       });
+
+//     })
+//     .catch(() => {
+//       console.log("Error loading disasters");
+//     });
+// }
+
+// const logoutBtn = document.getElementById("logoutBtn");
+
+// if (logoutBtn) {
+//   logoutBtn.addEventListener("click", () => {
+//     localStorage.removeItem("token");
+//     localStorage.removeItem("role");
+//     window.location.href = "login.html";
+//   });
+// }
