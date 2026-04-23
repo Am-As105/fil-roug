@@ -26,24 +26,24 @@ if (citySelect) {
 }
 
 
-// const API = "http://127.0.0.1:8000/api";
-// const id = new URLSearchParams(window.location.search).get("id");
-// const token = localStorage.getItem("token");
+const API = "http://127.0.0.1:8000/api";
+const id = new URLSearchParams(window.location.search).get("id");
+const token = localStorage.getItem("token");
 
-// const form = document.getElementById("editForm");
+const form = document.getElementById("editForm");
 
 
-// fetch(API + "/catastrophes/" + id)
-// .then(res => res.json())
-// .then(d => {
-//   form.title.value = d.title;
-//   form.description.value = d.description;
-//   form.latitude.value = d.latitude;
-//   form.longitude.value = d.longitude;
-//   form.date.value = d.date;
-//   form.severity.value = d.severity;
-//   form.status.value = d.status;
-// });
+fetch(API + "/catastrophes/" + id)
+.then(res => res.json())
+.then(d => {
+  form.title.value = d.title;
+  form.description.value = d.description;
+  form.latitude.value = d.latitude;
+  form.longitude.value = d.longitude;
+  form.date.value = d.date;
+  form.severity.value = d.severity;
+  form.status.value = d.status;
+});
 
 
 
