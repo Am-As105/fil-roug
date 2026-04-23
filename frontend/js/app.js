@@ -415,3 +415,4 @@ if (cardsContainer) {
 //     window.location.href = "login.html";
 //   });
 // }
+//
