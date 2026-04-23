@@ -203,37 +203,37 @@ function deleteDisaster(id) {
 
 
 
-// const citySelect = document.getElementById("citySelect");
+const citySelect = document.getElementById("citySelect");
 
-// if (citySelect) {
-//   fetch("https://countriesnow.space/api/v0.1/countries/cities", {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json"
-//     },
-//     body: JSON.stringify({
-//       country: "Morocco"
-//     })
-//   })
-//   .then(res => res.json())
-//   .then(data => {
+if (citySelect) {
+  fetch("https://countriesnow.space/api/v0.1/countries/cities", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      country: "Morocco"
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
 
-//     console.log(data);
+    console.log(data);
 
-//     citySelect.innerHTML = "";
+    citySelect.innerHTML = "";
 
-//     if (data.data) {
-//       data.data.forEach(city => {
-//         citySelect.innerHTML += `<option value="${city}">${city}</option>`;
-//       });
-//     }
+    if (data.data) {
+      data.data.forEach(city => {
+        citySelect.innerHTML += `<option value="${city}">${city}</option>`;
+      });
+    }
 
-//   })
-//   .catch(err => {
-//     console.log(err);
-//     citySelect.innerHTML = "<option>Error</option>";
-//   });
-// }
+  })
+  .catch(err => {
+    console.log(err);
+    citySelect.innerHTML = "<option>Error</option>";
+  });
+}
 
 
 // const searchInput = document.querySelector(".search");
