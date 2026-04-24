@@ -23,11 +23,13 @@
         <span></span>
       </button>
 
-      <nav class="nav" id="primary-navigation" aria-label="Menu principal">
+       <nav class="nav" id="primary-navigation" aria-label="Menu principal">
         <a class="nav-link active" href="index.html" aria-current="page">Accueil</a>
         <a class="nav-link" href="signalements.html">Signalements</a>
-        <a class="nav-link" href="contact.html">Contact</a>
-        <a href="register.html" class="nav-secondary">Créer un compte</a>
+        <a class="nav-link" href="contac.html">Contact</a>
+        <button  style="color: violet;" class="nav-secondary" id="logoutBtn" type="button">Logout</button>
+        <a  class="nav-link" href="profile.html">  Profile </a>
+        <a class="nav-primary add-disaster-toggle" href="#add-disaster">Ajouter un signalement</a>
       </nav>
     </div>
   </header>
@@ -38,8 +40,7 @@
         <h2>Connexion</h2>
 
         <form id="loginForm" method="post">
-          <p id="message" class="message" aria-live="polite"></p>
-
+<p id="loginMessage" class="message"></p>
           <div class="field">
             <label>Email</label>
             <input type="email" name="email" required>
