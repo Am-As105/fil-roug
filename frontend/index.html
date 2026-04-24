@@ -15,9 +15,8 @@
         <span class="logo-mark">S</span>
         <span class="logo-text">
           <strong>SafeHaven</strong>
-          <small>Protection et réponse</small>
         </span>
-      </a>
+      </a> 
 
       <button class="menu-btn" type="button" aria-controls="primary-navigation" aria-expanded="false" aria-label="Ouvrir le menu">
         <span></span>
@@ -28,8 +27,9 @@
       <nav class="nav" id="primary-navigation" aria-label="Menu principal">
         <a class="nav-link active" href="index.html" aria-current="page">Accueil</a>
         <a class="nav-link" href="signalements.html">Signalements</a>
-        <a class="nav-link" href="contact.html">Contact</a>
-        <button class="nav-secondary" id="logoutBtn" type="button">Logout</button>
+        <a class="nav-link" href="contac.html">Contact</a>
+        <button  style="color: violet;" class="nav-secondary" id="logoutBtn" type="button">Logout</button>
+        <a  class="nav-link" href="profile.html">  Profile </a>
         <a class="nav-primary add-disaster-toggle" href="#add-disaster">Ajouter un signalement</a>
       </nav>
     </div>
@@ -42,31 +42,35 @@
         <h1>Lecture rapide des risques</h1>
         <p class="hero-desc">Surveillez les incidents, les zones critiques et l'état global en un coup d'œil.</p>
 
-        <div class="hero-stats">
+        <!-- <div class="hero-stats">
           <p class="hero-stat"><strong>7</strong> signalements récents</p>
           <p class="hero-stat"><strong>2</strong> zones critiques</p>
           <p class="hero-stat"><strong>24/7</strong> suivi continu</p>
-        </div>
+        </div> -->
       </div>
 
       <div class="hero-image">
-        <img src="assets/disaster-illustration.svg" alt="Illustration de catastrophe">
+        <img src="" alt="Illustration de catastrophe">
       </div>
     </section>
 
     <section class="stats">
-      <div class="stat-box">
-        <h3>7</h3>
-        <p>Total catastrophes</p>
-      </div>
-      <div class="stat-box">
-        <h3>2</h3>
-        <p>Critiques</p>
-      </div>
-      <div class="stat-box">
-        <h3>4</h3>
-        <p>En cours</p>
-      </div>
+      <div class="stats">
+  <div class="stat">
+    <h3>Total</h3>
+    <span id="totalCount">0</span>
+  </div>
+
+  <div class="stat">
+    <h3>Critiques</h3>
+    <span id="criticalCount">0</span>
+  </div>
+
+  <div class="stat">
+    <h3>En cours</h3>
+    <span id="progressCount">0</span>
+  </div>
+</div>
     </section>
 
     <section class="map-section">
@@ -137,8 +141,11 @@
 
           <div class="field">
             <label>Sévérité</label>
-            <input type="text" name="severity" placeholder="High / Low">
-          </div>
+    <select name="severity" id="severitySelect">
+      <option value="low">Low</option>
+    <option value="medium">Medium</option>
+    <option value="high">High</option>
+   </select>          </div>
 
           <div class="field">
             <label>Status</label>

@@ -11,8 +11,8 @@ if (citySelect) {
     },
     body: JSON.stringify({
       country: "Morocco"
-    })
-  })
+    }) 
+  })  
   .then(res => res.json())
   .then(data => {
 
@@ -47,28 +47,35 @@ fetch(API + "/catastrophes/" + id)
 
 
 
-// form.addEventListener("submit", function(e){
-//   e.preventDefault();
+form.addEventListener("submit", function(e){
+  e.preventDefault();
 
-//   fetch(API + "/catastrophes/" + id, {
-//     method: "PUT",
-//     headers: {
-//       "Content-Type": "application/json",
-//       "Authorization": "Bearer " + token
-//     },
-//     body: JSON.stringify({
-//       title: this.title.value,
-//       description: this.description.value,
-//       latitude: this.latitude.value,
-//       longitude: this.longitude.value,
-//       date: this.date.value,
-//       severity: this.severity.value,
-//       status: this.status.value
-//     })
-//   })
-//   .then(() => {
-//     alert("Updated");
-//     window.location.href = "index.html";
-//   })
-//   .catch(() => alert("Error"));//
-// });
+  fetch(API + "/catastrophes/" + id, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token
+    },
+    body: JSON.stringify({
+      title: this.title.value,
+      description: this.description.value,
+      latitude: this.latitude.value,
+      longitude: this.longitude.value,
+      date: this.date.value,
+      severity: this.severity.value,
+      status: this.status.value
+    })
+  })
+  .then(() => {
+    alert("Updated");
+    window.location.href = "index.html";
+  })
+  .catch(() => alert("Error"));//
+});
+
+
+
+
+
+
+

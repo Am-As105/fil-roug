@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modifier - SafeHaven</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    main.container {
+      padding: 60px 10%;
+      background-color: #f4f5f9;
+      min-height: calc(100vh - 400px);
+    }
+
+    #editForm {
+      background: #ffffff;
+      border: 1px solid #d1d6e6;
+      border-radius: 2px;
+      padding: 40px;
+      max-width: 800px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    #editForm h2 {
+      grid-column: span 2;
+      font-size: 24px;
+      color: #121c2d;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #d1d6e6;
+      padding-bottom: 15px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .full-width {
+      grid-column: span 2;
+    }
+
+    #editForm label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #606b85;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    #editForm input, 
+    #editForm select {
+      height: 48px;
+      padding: 0 16px;
+      border: 1px solid #d1d6e6;
+      border-radius: 2px;
+      font-size: 14px;
+      background-color: #fff;
+    }
+
+    #editForm input:focus {
+      outline: none;
+      border-color: #001489;
+    }
+
+    #editForm button[type="submit"] {
+      grid-column: span 2;
+      height: 50px;
+      background-color: #f22f46;
+      color: #fff;
+      border: none;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 768px) {
+      #editForm { grid-template-columns: 1fr; padding: 20px; }
+      #editForm h2, .full-width, #editForm button { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="container navbar-inner">
+      <a class="logo" href="index.html">
+        <span class="logo-mark">S</span>
+        <span class="logo-text"><strong>SafeHaven</strong></span>
+      </a>
+       <nav class="nav" id="primary-navigation" aria-label="Menu principal">
+        <a class="nav-link active" href="index.html" aria-current="page">Accueil</a>
+        <a class="nav-link" href="signalements.html">Signalements</a>
+        <a class="nav-link" href="contac.html">Contact</a>
+        <button  style="color: violet;" class="nav-secondary" id="logoutBtn" type="button">Logout</button>
+        <a  class="nav-link" href="profile.html">  Profile </a>
+        <a class="nav-primary add-disaster-toggle" href="#add-disaster">Ajouter un signalement</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <form id="editForm">
+      <h2>Modifier le signalement</h2>
+
+      <div class="field-group full-width">
+        <label>Titre</label>
+        <input type="text" name="title" placeholder="Titre">
+      </div>
+
+      <div class="field-group">
+        <label>Ville / Zone</label>
+        <select name="description" id="citySelect"></select>
+      </div>
+
+      <div class="field-group">
+        <label>Date</label>
+        <input type="date" name="date">
+      </div>
+
+      <div class="field-group">
+        <label>Latitude</label>
+        <input type="text" name="latitude" placeholder="Latitude">
+      </div>
+
+      <div class="field-group">
+        <label>Longitude</label>
+        <input type="text" name="longitude" placeholder="Longitude">
+      </div>
+
+      <div class="field-group">
+        <label>Sévérité</label>
+        <select name="severity" id="severitySelect">
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label>Status</label>
+        <select name="status">
+          <option>Critique</option>
+          <option>Élevée</option>
+          <option>En cours</option>
+        </select>
+      </div>
+
+      <button type="submit">Enregistrer les modifications</button>
+    </form>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <h2>SafeHaven</h2>
+        <p>Un espace simple pour suivre les catastrophes.</p>
+      </div>
+      <div class="footer-links">
+        <h3>Liens rapides</h3>
+        <a href="index.html">Accueil</a>
+        <a href="signalements.html">Signalements</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span>2026 SafeHaven</span>
+    </div>
+  </footer>
+
+  <script src="js/edit.js"></script>
+</body>
+</html>

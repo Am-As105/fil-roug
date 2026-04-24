@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register</title>
+  <title>Login</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -23,7 +23,7 @@
         <span></span>
       </button>
 
-       <nav class="nav" id="primary-navigation" aria-label="Menu principal">
+        <nav class="nav" id="primary-navigation" aria-label="Menu principal">
         <a class="nav-link active" href="index.html" aria-current="page">Accueil</a>
         <a class="nav-link" href="signalements.html">Signalements</a>
         <a class="nav-link" href="contac.html">Contact</a>
@@ -34,48 +34,7 @@
     </div>
   </header>
 
-  <main class="container">
-    <section class="auth">
-      <div class="auth-box">
-        <h2>Créer un compte</h2>
-
-        <form id="registerForm" method="POST">
-          <p id="message" class="message" aria-live="polite"></p>
-
-          <div class="field">
-            <label>Nom</label>
-            <input type="text" name="nom" required>
-          </div>
-
-          <div class="field">
-            <label>Email</label>
-            <input type="email" name="email" required>
-          </div>
-
-          <div class="field">
-            <label>Téléphone</label>
-            <input type="tel" name="telephone" pattern="[0-9]{10}" placeholder="0612345678" required>
-          </div>
-
-          <div class="field">
-            <label>Adresse</label>
-            <input type="text" name="adress" required>
-          </div>
-
-          <div class="field">
-            <label>Mot de passe</label>
-            <input type="password" name="password" required>
-          </div>
-
-          <button class="form-submit" type="submit">S'inscrire</button>
-        </form>
-
-        <p class="auth-link">
-          Déjà un compte ? <a href="login.html">Se connecter</a>
-        </p>
-      </div>
-    </section>
-  </main>
+      
 
   <footer class="footer">
     <div class="container footer-inner">

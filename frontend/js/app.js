@@ -202,7 +202,6 @@ function deleteDisaster(id) {
 
 
 
-
 const citySelect = document.getElementById("citySelect");
 
 if (citySelect) {
@@ -218,7 +217,7 @@ if (citySelect) {
   .then(res => res.json())
   .then(data => {
 
-    console.log(data);
+    // console.log(data);
 
     citySelect.innerHTML = "";
 
@@ -345,8 +344,8 @@ if (loginForm) {
         localStorage.setItem("role", data.role);
       }
 
-      loginMessage.innerText = "Connexion réussie";
-      loginMessage.style.color = "green";
+      loginMessage.innerText = "Connexion réussie ";
+      loginMessage.style.color = "green"; 
 
       setTimeout(() => {
         window.location.href = "index.html";
