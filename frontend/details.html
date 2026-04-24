@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Détails catastrophe</title>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/details.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
@@ -24,12 +25,13 @@
         <span></span>
       </button>
 
-      <nav class="nav" id="primary-navigation" aria-label="Menu principal">
-        <a class="nav-link" href="index.html">Accueil</a>
-        <a class="nav-link active" href="signalements.html" aria-current="page">Signalements</a>
-        <a class="nav-link" href="contact.html">Contact</a>
-        <button class="nav-secondary" id="logoutBtn" type="button">Logout</button>
-        <a class="nav-primary add-disaster-toggle" href="index.html#add-disaster">Ajouter un signalement</a>
+       <nav class="nav" id="primary-navigation" aria-label="Menu principal">
+        <a class="nav-link active" href="index.html" aria-current="page">Accueil</a>
+        <a class="nav-link" href="signalements.html">Signalements</a>
+        <a class="nav-link" href="contac.html">Contact</a>
+        <button  style="color: violet;" class="nav-secondary" id="logoutBtn" type="button">Logout</button>
+        <a  class="nav-link" href="profile.html">  Profile </a>
+        <a class="nav-primary add-disaster-toggle" href="#add-disaster">Ajouter un signalement</a>
       </nav>
     </div>
   </header>
@@ -47,22 +49,37 @@
           <p><strong>Zone:</strong> <span id="desc"></span></p>
           <p><strong>Date:</strong> <span id="date"></span></p>
           <p><strong>Niveau:</strong> <span id="severity"></span></p>
-        </div>
+        </div> 
 
         <div class="info-box">
           <h3>Coordonnées</h3>
           <p><strong>Latitude:</strong> <span id="lat"></span></p>
           <p><strong>Longitude:</strong> <span id="lng"></span></p>
         </div>
-      </div>
+      </div>  
+           <div class="tracking-box">
+
+  <h3>Suivi de la catastrophe</h3>
+
+  <div class="tracking-steps">
+    <div class="step" id="step-start">Début</div>
+    <div class="step" id="step-progress">En cours</div>
+    <div class="step" id="step-end">Terminé</div>
+  </div>
+
+  <canvas id="myChart" height="100"></canvas>
+
+</div>
 
       <div id="map"></div>
+
 
       <div class="actions">
         <a href="index.html" class="btn">← Retour</a>
       </div>
     </section>
   </main>
+
 
   <footer class="footer">
     <div class="container footer-inner">
@@ -88,9 +105,8 @@
     </div>
   </footer>
 
-  <script src="js/app.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script>
+  <!-- <script>
     const id = new URLSearchParams(window.location.search).get("id");
     const token = localStorage.getItem("token");
 
@@ -158,6 +174,8 @@
       .catch(() => {
         document.getElementById("title").innerText = "Signalement introuvable";
       });
-  </script>
+  </script> -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/details.js"></script>
 </body>
 </html>
