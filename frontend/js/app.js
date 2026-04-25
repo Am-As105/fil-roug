@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://127.0.0.1:8000/api";
+const API_BASE_URL = "http://16.170.217.143/api";
 
 const token = localStorage.getItem("token");
 const role = localStorage.getItem("role") || "";
@@ -11,13 +11,14 @@ if (!isAdmin) {
   if (addBtn) addBtn.style.display = "none";
   if (form) form.style.display = "none";
 }
+
 function escapeHtml(value = "") {
   return String(value)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;"); 
+    .replace(/'/g, "&#39;");
 }
 
 function normalizeKey(value = "") {
@@ -73,20 +74,8 @@ if (addDisasterLinks.length && addDisasterSection) {
       e.preventDefault();
       addDisasterSection.classList.toggle("is-hidden");
     });
-  }); 
+  });
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 const cardsContainer = document.getElementById("cards-container");
 
@@ -95,9 +84,8 @@ if (cardsContainer) {
     ? { headers: { Authorization: "Bearer " + token } }
     : {};
 
-  requestJson(API_BASE_URL +  "/catastrophes", options)
+  requestJson(API_BASE_URL + "/catastrophes", options)
     .then(data => {
-
       const list = Array.isArray(data) ? data : data.data || [];
 
       let total = 0;
@@ -107,7 +95,6 @@ if (cardsContainer) {
       cardsContainer.innerHTML = "";
 
       list.forEach(d => {
-
         total++;
 
         const statusKey = normalizeKey(d.status);
@@ -116,6 +103,7 @@ if (cardsContainer) {
         if (statusKey === "encours" || statusKey === "progress") progress++;
 
         const status = getStatusVariant(d.status);
+
         cardsContainer.innerHTML += `
   <div class="card">
     <div class="card-image">
@@ -144,21 +132,12 @@ if (cardsContainer) {
       if (totalEl) totalEl.innerText = total;
       if (criticalEl) criticalEl.innerText = critical;
       if (progressEl) progressEl.innerText = progress;
-
     })
     .catch(err => {
       console.log(err);
       cardsContainer.innerHTML = "Erreur chargement";
     });
 }
-
-
-
-
-
-
-
-
 
 const disasterForm = document.getElementById("disasterForm");
 
@@ -200,8 +179,6 @@ function deleteDisaster(id) {
   .catch(() => alert("Error"));
 }
 
-
-
 const citySelect = document.getElementById("citySelect");
 
 if (citySelect) {
@@ -216,9 +193,6 @@ if (citySelect) {
   })
   .then(res => res.json())
   .then(data => {
-
-    // console.log(data);
-
     citySelect.innerHTML = "";
 
     if (data.data) {
@@ -226,7 +200,6 @@ if (citySelect) {
         citySelect.innerHTML += `<option value="${city}">${city}</option>`;
       });
     }
-
   })
   .catch(err => {
     console.log(err);
@@ -234,35 +207,25 @@ if (citySelect) {
   });
 }
 
-
 const searchInput = document.querySelector(".search");
 
 if (searchInput && cardsContainer) {
   searchInput.addEventListener("input", function () {
-
     const value = this.value.toLowerCase();
-
     const cards = document.querySelectorAll(".card");
 
     cards.forEach(card => {
       const text = card.innerText.toLowerCase();
-
       card.style.display = text.includes(value) ? "block" : "none";
     });
-
   });
 }
-
-
-
 
 const filter = document.querySelector(".filter");
 
 if (filter && cardsContainer) {
   filter.addEventListener("change", function () {
-
     const value = this.value.toLowerCase();
-
     const cards = document.querySelectorAll(".card");
 
     cards.forEach(card => {
@@ -274,11 +237,8 @@ if (filter && cardsContainer) {
         card.style.display = text.includes(value) ? "block" : "none";
       }
     });
-
   });
 }
-
-
 
 const registerForm = document.getElementById("registerForm");
 const registerMessage = document.getElementById("message");
@@ -299,7 +259,7 @@ if (registerForm) {
       })
     })
     .then(res => res.json())
-    .then(data => {
+    .then(() => {
       registerMessage.innerText = "Compte créé avec succès";
       registerMessage.style.color = "green";
       registerForm.reset();
@@ -333,24 +293,17 @@ if (loginForm) {
     })
     .then(res => res.json())
     .then(data => {
-
-      if (!data.token) {
-        throw new Error("Login failed");
-      }
+      if (!data.token) throw new Error();
 
       localStorage.setItem("token", data.token);
+      if (data.role) localStorage.setItem("role", data.role);
 
-      if (data.role) {
-        localStorage.setItem("role", data.role);
-      }
-
-      loginMessage.innerText = "Connexion réussie ";
-      loginMessage.style.color = "green"; 
+      loginMessage.innerText = "Connexion réussie";
+      loginMessage.style.color = "green";
 
       setTimeout(() => {
         window.location.href = "index.html";
       }, 800);
-
     })
     .catch(() => {
       loginMessage.innerText = "Email ou mot de passe incorrect";
@@ -359,46 +312,29 @@ if (loginForm) {
   });
 }
 
-
-
-
-
-
-
-
 const mapElement = document.getElementById("map");
 
 if (mapElement && typeof L !== "undefined") {
-
   const map = L.map("map").setView([31.7917, -7.0926], 6);
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
     .addTo(map);
 
-  fetch("http://127.0.0.1:8000/api/catastrophes")
+  fetch(API_BASE_URL + "/catastrophes")
     .then(res => res.json())
     .then(data => {
-
       const list = Array.isArray(data) ? data : data.data || [];
 
       list.forEach(d => {
-
         const lat = parseFloat(d.latitude);
         const lng = parseFloat(d.longitude);
 
         if (!isNaN(lat) && !isNaN(lng)) {
-
           L.marker([lat, lng])
             .addTo(map)
-            .bindPopup(`
-              <b>${d.title}</b><br>
-              ${d.description}
-            `);
-
+            .bindPopup(`<b>${d.title}</b><br>${d.description}`);
         }
-
       });
-
     })
     .catch(() => {
       console.log("Error loading disasters");

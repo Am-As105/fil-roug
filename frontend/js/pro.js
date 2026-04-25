@@ -1,12 +1,10 @@
-
-
 const token = localStorage.getItem("token");
 
 if (!token) {
   window.location.href = "login.html";
 }
 
-fetch("http://127.0.0.1:8000/api/user", {
+fetch("http://16.170.217.143/api/user", {
   headers: {
     Authorization: "Bearer " + token
   }

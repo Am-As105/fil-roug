@@ -40,6 +40,9 @@ class CatastropheController extends Controller
             'severity' => 'required|string|max:255',
             'status' => 'required|string|max:255',
             'type_id' => 'required|exists:types,id',
+             'victims' => 'nullable|integer',
+             'injured' => 'nullable|integer',
+             'damage' => 'nullable|numeric',
         ]);
 
         $catastrophe = Catastrophe::create([

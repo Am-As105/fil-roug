@@ -1,6 +1,3 @@
-
-
-
 const citySelect = document.getElementById("citySelect");
 
 if (citySelect) {
@@ -11,7 +8,7 @@ if (citySelect) {
     },
     body: JSON.stringify({
       country: "Morocco"
-    }) 
+    })  
   })  
   .then(res => res.json())
   .then(data => {
@@ -26,7 +23,9 @@ if (citySelect) {
 }
 
 
-const API = "http://127.0.0.1:8000/api";
+
+const API = "http://16.170.217.143/api";
+
 const id = new URLSearchParams(window.location.search).get("id");
 const token = localStorage.getItem("token");
 
@@ -44,7 +43,6 @@ fetch(API + "/catastrophes/" + id)
   form.severity.value = d.severity;
   form.status.value = d.status;
 });
-
 
 
 form.addEventListener("submit", function(e){
@@ -70,12 +68,5 @@ form.addEventListener("submit", function(e){
     alert("Updated");
     window.location.href = "index.html";
   })
-  .catch(() => alert("Error"));//
-});
-
-
-
-
-
-
-
+  .catch(() => alert("Error"));
+}); 

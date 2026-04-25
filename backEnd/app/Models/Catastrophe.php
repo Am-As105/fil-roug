@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Catastrophe extends Model
 {
     //
-    protected $fillable = [
+   protected $fillable = [
         'title',
         'description',
         'latitude',
@@ -15,7 +15,10 @@ class Catastrophe extends Model
         'date',
         'severity',
         'status',
-        'type_id'
+        'type_id',
+        'victims',
+        'injured',
+        'damage'
     ];
     public function type()
     {

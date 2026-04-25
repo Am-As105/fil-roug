@@ -21,6 +21,9 @@ return new class extends Migration
             $table->string('severity');
             $table->string('status');
             $table->foreignId('type_id')->constrained()->cascadeOnDelete();
+            $table->integer('victims')->nullable();
+            $table->integer('injured')->nullable();
+            $table->decimal('damage', 10, 2)->nullable();
             $table->timestamps();
     });
 }

@@ -26,7 +26,8 @@ if (!id) {
 const headers = {};
 if (token) headers.Authorization = "Bearer " + token;
 
-fetch("http://127.0.0.1:8000/api/catastrophes/" + id, { headers })
+
+fetch("http://16.170.217.143/api/catastrophes/" + id, { headers })
   .then(res => {
     if (!res.ok) throw new Error();
     return res.json();
@@ -69,65 +70,61 @@ fetch("http://127.0.0.1:8000/api/catastrophes/" + id, { headers })
       radius: radius
     }).addTo(map);
 
-
     const ctx = document.getElementById("myChart");
-//
-if (ctx) {
 
-  const start = new Date(d.date);
-  const today = new Date();
+    if (ctx) {
 
-  let endDate;
-  let progress = 0;
+      const start = new Date(d.date);
+      const today = new Date();
 
-  const status = normalizeKey(d.status);
+      let endDate;
+      let progress = 0;
 
-  if (status === "termine" || status === "resolved") {
-    endDate = new Date(d.updated_at || today);
-    progress = 100;
-  } else {
-    endDate = today;
+      const status = normalizeKey(d.status);
 
-    if (status === "critique") progress = 25;
-    else if (status === "encours" || status === "progress") progress = 60;
-  }
+      if (status === "termine" || status === "resolved") {
+        endDate = new Date(d.updated_at || today);
+        progress = 100;
+      } else {
+        endDate = today;
 
-  const labels = [
-    start.toLocaleDateString(),
-    endDate.toLocaleDateString()
-  ];
-doc
-  const data = [
-    0,
-    progress
-  ];
-
-  new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: labels,
-      datasets: [{
-        label: "Suivi",
-        data: data,
-        borderColor: "red",
-        fill: false
-      }]
-    },
-    options: {
-      scales: {
-        y: {
-          min: 0,
-          max: 100
-        }
+        if (status === "critique") progress = 25;
+        else if (status === "encours" || status === "progress") progress = 60;
       }
-    }
-  });
 
-}
-    
+      const labels = [
+        start.toLocaleDateString(),
+        endDate.toLocaleDateString()
+      ];
+
+      const data = [
+        0,
+        progress
+      ];
+
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: [{
+            label: "Suivi",
+            data: data,
+            borderColor: "red",
+            fill: false
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              min: 0,
+              max: 100
+            }
+          }
+        }
+      });
+    }
 
   })
   .catch(() => {
     document.getElementById("title").innerText = "Erreur chargement";
   });
-
