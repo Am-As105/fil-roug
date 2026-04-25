@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CatastropheController;
+use App\Http\Controllers\TypeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,4 +20,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/catastrophes', [CatastropheController::class, 'store']);
     Route::match(['put', 'patch'], '/catastrophes/{catastropheId}', [CatastropheController::class, 'update']);
     Route::delete('/catastrophes/{catastropheId}', [CatastropheController::class, 'delete']);
+    Route::get('/types', [TypeController::class, 'index']);
 });
