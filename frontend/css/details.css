@@ -170,3 +170,31 @@ main.container {
     padding: 20px;
   }
 }
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-left: 3px solid #ccc;
+  padding-left: 15px;
+}
+
+.step {
+  position: relative;
+  padding: 5px 10px;
+}
+
+.step::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background: gray;
+  border-radius: 50%;
+  position: absolute;
+  left: -19px;
+  top: 8px;
+}
+
+.step.active::before {
+  background: green;
+}
