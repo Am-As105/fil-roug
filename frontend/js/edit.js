@@ -1,4 +1,4 @@
-const API = "https://16.170.217.143/api";
+const API = "https://savehaven.aminearar.com/api";
 
 const id = new URLSearchParams(window.location.search).get("id");
 const token = localStorage.getItem("token");

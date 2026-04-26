@@ -4,7 +4,7 @@ if (!token) {
   window.location.href = "login.html";
 }
 
-fetch("https://16.170.217.143/api/user", {
+fetch("https://savehaven.aminearar.com/api/user", {
   headers: {
     Authorization: "Bearer " + token
   }
