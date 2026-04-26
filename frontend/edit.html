@@ -104,54 +104,75 @@
   </header>
 
   <main class="container">
-    <form id="editForm">
-      <h2>Modifier le signalement</h2>
+<form id="editForm">
 
-      <div class="field-group full-width">
-        <label>Titre</label>
-        <input type="text" name="title" placeholder="Titre">
-      </div>
+  <h2>Modifier le signalement</h2>
 
-      <div class="field-group">
-        <label>Ville / Zone</label>
-        <select name="description" id="citySelect"></select>
-      </div>
+  <div class="field-group full-width">
+    <label>Titre</label>
+    <input type="text" name="title">
+  </div>
 
-      <div class="field-group">
-        <label>Date</label>
-        <input type="date" name="date">
-      </div>
+  <div class="field-group">
+    <label>Zone</label>
+    <select name="description" id="citySelect"></select>
+  </div>
 
-      <div class="field-group">
-        <label>Latitude</label>
-        <input type="text" name="latitude" placeholder="Latitude">
-      </div>
+  <div class="field-group">
+    <label>Date</label>
+    <input type="date" name="date">
+  </div>
 
-      <div class="field-group">
-        <label>Longitude</label>
-        <input type="text" name="longitude" placeholder="Longitude">
-      </div>
+  <div class="field-group">
+    <label>Latitude</label>
+    <input type="number" name="latitude">
+  </div>
 
-      <div class="field-group">
-        <label>Sévérité</label>
-        <select name="severity" id="severitySelect">
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-        </select>
-      </div>
+  <div class="field-group">
+    <label>Longitude</label>
+    <input type="number" name="longitude">
+  </div>
 
-      <div class="field-group">
-        <label>Status</label>
-        <select name="status">
-          <option>Critique</option>
-          <option>Élevée</option>
-          <option>En cours</option>
-        </select>
-      </div>
+  <div class="field-group">
+    <label>Sévérité</label>
+    <select name="severity">
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+  </div>
 
-      <button type="submit">Enregistrer les modifications</button>
-    </form>
+  <div class="field-group">
+    <label>Status</label>
+    <select name="status">
+      <option>Critique</option>
+      <option>Élevée</option>
+      <option>En cours</option>
+    </select>
+  </div>
+
+  <div class="field-group">
+    <label>Type</label>
+<select name="type_id" id="typeSelect"></select>  </div>
+
+  <div class="field-group">
+    <label>Victimes</label>
+    <input type="number" name="victims">
+  </div>
+
+  <div class="field-group">
+    <label>Blessés</label>
+    <input type="number" name="injured">
+  </div>
+
+  <div class="field-group full-width">
+    <label>Dégâts (DH)</label>
+    <input type="number" name="damage">
+  </div>
+
+  <button type="submit">Enregistrer</button>
+
+</form>
   </main>
 
   <footer class="footer">
@@ -172,5 +193,7 @@
   </footer>
 
   <script src="js/edit.js"></script>
+  <script src="js/app.js"></script>
+
 </body>
 </html>
