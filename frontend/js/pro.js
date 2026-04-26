@@ -4,7 +4,7 @@ if (!token) {
   window.location.href = "login.html";
 }
 
-fetch("http://16.170.217.143/api/user", {
+fetch("https://16.170.217.143/api/user", {
   headers: {
     Authorization: "Bearer " + token
   }

@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://16.170.217.143/api";
+const API_BASE_URL = "https://16.170.217.143/api";
 
 const token = localStorage.getItem("token");
 const role = localStorage.getItem("role") || "";
@@ -161,8 +161,8 @@ if (disasterForm) {
         status: this.status.value,
         type_id: this.type_id.value,
         victims: this.victims.value,
-  injured: this.injured.value,
-  damage: this.damage.value
+      injured: this.injured.value,
+      damage: this.damage.value
         
       })
     })

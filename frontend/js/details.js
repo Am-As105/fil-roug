@@ -27,7 +27,7 @@ const headers = {};
 if (token) headers.Authorization = "Bearer " + token;
 
 
-fetch("http://16.170.217.143/api/catastrophes/" + id, { headers })
+fetch("https://16.170.217.143/api/catastrophes/" + id, { headers })
   .then(res => {
     if (!res.ok) throw new Error();
     return res.json();
