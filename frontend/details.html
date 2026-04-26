@@ -16,6 +16,7 @@
         <span class="logo-mark">S</span>
         <span class="logo-text">
           <strong>SafeHaven</strong>
+          <small>Protection et réponse</small>
         </span>
       </a>
 
@@ -71,13 +72,13 @@
       </div>
 
       <div class="tracking-box">
-        <h3>Suivi de la catastrophe</h3>
 
         <div class="timeline">
           <div class="step" id="step-start">Début</div>
           <div class="step" id="step-current">En cours</div>
-          <div class="step" id="step-end">Fin</div>
+          <div class="step" id="step-end">Terminée</div>
         </div>
+
       </div>
 
       <div id="map" style="height:300px;"></div>
@@ -143,9 +144,13 @@
 
         const map = L.map("map").setView([lat, lng], 14);
 
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
+          .addTo(map);
 
-        L.marker([lat, lng]).addTo(map).bindPopup(d.title).openPopup();
+        L.marker([lat, lng])
+          .addTo(map)
+          .bindPopup(d.title)
+          .openPopup();
 
         let radius = 500;
 
@@ -175,13 +180,11 @@
         if (progress < 30) {
           startStep.classList.add("active");
           currentStep.innerText = "Début";
-        }
-        else if (progress < 100) {
+        } else if (progress < 100) {
           startStep.classList.add("active");
           currentStep.classList.add("active");
           currentStep.innerText = "En cours";
-        }
-        else {
+        } else {
           startStep.classList.add("active");
           currentStep.classList.add("active");
           endStep.classList.add("active");
