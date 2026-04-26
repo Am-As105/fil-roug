@@ -80,7 +80,12 @@
           <div class="step" id="step-end">Terminé</div>
         </div>
 
-        <canvas id="myChart" height="100"></canvas>
+        <div class="timeline">
+  <div class="step" id="step-start">Début</div>
+  <div class="step" id="step-current">En cours</div>
+  <div class="step" id="step-end">Fin</div>
+</div>
+
       </div>
 
       <div id="map" style="height:300px;"></div>
@@ -167,29 +172,33 @@
         radius: radius
       }).addTo(map);
 
-      const start = new Date(d.date);
-      const now = new Date();
+      const startStep = document.getElementById("step-start");
+const currentStep = document.getElementById("step-current");
+const endStep = document.getElementById("step-end");
 
-      const totalTime = 7 * 24 * 60 * 60 * 1000;
-      const passedTime = now - start;
+const start = new Date(d.date);
+const now = new Date();
 
-      let life = Math.round((passedTime / totalTime) * 100);
+const totalTime = 7 * 24 * 60 * 60 * 1000;
+const passed = now - start;
 
-      if (life > 100) life = 100;
-      if (life < 0) life = 0;
+let progress = (passed / totalTime) * 100;
 
-      const bar = document.getElementById("progressBar");
-      const text = document.getElementById("progressText");
-
-      if (bar && text) {
-        bar.style.width = life + "%";
-        text.innerText = "Évolution: " + life + "%";
-      }
-
-    })
-    .catch(() => {
-      document.getElementById("title").innerText = "Erreur chargement";
-    });
+if (progress < 30) {
+  startStep.classList.add("active");
+  currentStep.innerText = "Début";
+}
+else if (progress < 100) {
+  startStep.classList.add("active");
+  currentStep.classList.add("active");
+  currentStep.innerText = "En cours";
+}
+else {
+  startStep.classList.add("active");
+  currentStep.classList.add("active");
+  endStep.classList.add("active");
+  currentStep.innerText = "Terminée";
+}
 </script>
 
 </body>
