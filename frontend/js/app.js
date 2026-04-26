@@ -159,7 +159,11 @@ if (disasterForm) {
         date: this.date.value,
         severity: this.severity.value,
         status: this.status.value,
-        type_id: this.type_id.value
+        type_id: this.type_id.value,
+        victims: this.victims.value,
+  injured: this.injured.value,
+  damage: this.damage.value
+        
       })
     })
     .then(res => res.json())
@@ -350,3 +354,49 @@ if (logoutBtn) {
     window.location.href = "login.html";
   });
 }
+
+
+
+const typeSelect = document.getElementById("typeSelect");
+
+if (typeSelect) {
+  fetch(API_BASE_URL + "/types")
+    .then(res => res.json())
+    .then(types => {
+      typeSelect.innerHTML = "";
+
+      types.forEach(t => {
+        typeSelect.innerHTML += `
+          <option value="${t.id}">${t.name}</option>
+        `;
+      });
+    })
+    .catch(() => {
+      typeSelect.innerHTML = "<option>Erreur chargement</option>";
+    });
+}
+
+
+
+navigator.geolocation.getCurrentPosition((pos) => {
+  const userLat = pos.coords.latitude;
+  const userLng = pos.coords.longitude;
+
+  fetch(API_BASE_URL + "/catastrophes")
+    .then(res => res.json())
+    .then(data => {
+      const list = Array.isArray(data) ? data : data.data || [];
+
+      list.forEach(d => {
+        const lat = parseFloat(d.latitude);
+        const lng = parseFloat(d.longitude);
+
+        if (
+          Math.abs(userLat - lat) < 0.1 &&
+          Math.abs(userLng - lng) < 0.1
+        ) {
+          alert("⚠️ Catastrophe proche !");
+        }
+      });
+    });
+});
