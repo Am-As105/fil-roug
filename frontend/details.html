@@ -95,135 +95,102 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <script>
-    const id = new URLSearchParams(window.location.search).get("id");
-    const token = localStorage.getItem("token");
+<script>
+  const id = new URLSearchParams(window.location.search).get("id");
+  const token = localStorage.getItem("token");
 
-    function normalizeKey(value = "") {
-      return String(value)
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "");
-    }
+  function normalizeKey(value = "") {
+    return String(value)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "");
+  }
 
-    function getStatusVariant(status = "") {
-      const key = normalizeKey(status);
-      if (key === "critique" || key === "critical") return "critical";
-      if (key === "encours" || key === "inprogress") return "progress";
-      if (key === "elevee" || key === "high") return "high";
-      return "neutral";
-    }
+  function getStatusVariant(status = "") {
+    const key = normalizeKey(status);
+    if (key === "critique" || key === "critical") return "critical";
+    if (key === "encours" || key === "inprogress") return "progress";
+    if (key === "elevee" || key === "high") return "high";
+    return "neutral";
+  }
 
-    const headers = {};
-    if (token) headers.Authorization = "Bearer " + token;
+  const headers = {};
+  if (token) headers.Authorization = "Bearer " + token;
 
-    fetch("https://savehaven.aminearar.com/api/catastrophes/" + id, { headers })
-      .then(res => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then(d => {
+  fetch("https://savehaven.aminearar.com/api/catastrophes/" + id, { headers })
+    .then(res => {
+      if (!res.ok) throw new Error();
+      return res.json();
+    })
+    .then(d => {
 
-        document.getElementById("title").innerText = d.title;
-        document.getElementById("desc").innerText = d.description;
-        document.getElementById("date").innerText = d.date;
-        document.getElementById("severity").innerText = d.severity;
-        document.getElementById("lat").innerText = d.latitude;
-        document.getElementById("lng").innerText = d.longitude;
+      document.getElementById("title").innerText = d.title;
+      document.getElementById("desc").innerText = d.description;
+      document.getElementById("date").innerText = d.date;
+      document.getElementById("severity").innerText = d.severity;
+      document.getElementById("lat").innerText = d.latitude;
+      document.getElementById("lng").innerText = d.longitude;
 
-        const statusEl = document.getElementById("status");
-        statusEl.innerText = d.status;
-        statusEl.classList.add("status-" + getStatusVariant(d.status));
+      const statusEl = document.getElementById("status");
+      statusEl.innerText = d.status;
+      statusEl.classList.add("status-" + getStatusVariant(d.status));
 
-        document.getElementById("victims").innerText = d.victims ?? 0;
-        document.getElementById("injured").innerText = d.injured ?? 0;
-        document.getElementById("damage").innerText =
-          (d.damage ?? 0).toLocaleString() + " DH";
+      document.getElementById("victims").innerText = d.victims ?? 0;
+      document.getElementById("injured").innerText = d.injured ?? 0;
+      document.getElementById("damage").innerText =
+        (d.damage ?? 0).toLocaleString() + " DH";
 
-        const lat = parseFloat(d.latitude);
-        const lng = parseFloat(d.longitude);
+      const lat = parseFloat(d.latitude);
+      const lng = parseFloat(d.longitude);
 
-        const map = L.map("map").setView([lat, lng], 14);
+      const map = L.map("map").setView([lat, lng], 14);
 
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
-          .addTo(map);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
+        .addTo(map);
 
-        L.marker([lat, lng])
-          .addTo(map)
-          .bindPopup(d.title)
-          .openPopup();
+      L.marker([lat, lng])
+        .addTo(map)
+        .bindPopup(d.title)
+        .openPopup();
 
-        let radius = 500;
+      let radius = 500;
 
-        if (d.severity === "Critique") radius = 2000;
-        else if (d.severity === "Élevée") radius = 1200;
-        else if (d.severity === "Moyenne") radius = 800;
+      if (d.severity === "Critique") radius = 2000;
+      else if (d.severity === "Élevée") radius = 1200;
+      else if (d.severity === "Moyenne") radius = 800;
 
-        L.circle([lat, lng], {
-          color: "red",
-          fillColor: "#f03",
-          fillOpacity: 0.3,
-          radius: radius
-        }).addTo(map);
+      L.circle([lat, lng], {
+        color: "red",
+        fillColor: "#f03",
+        fillOpacity: 0.3,
+        radius: radius
+      }).addTo(map);
 
-        const ctx = document.getElementById("myChart");
+      const start = new Date(d.date);
+      const now = new Date();
 
-        if (ctx) {
-          const start = new Date(d.date);
-          const today = new Date();
+      const totalTime = 7 * 24 * 60 * 60 * 1000;
+      const passedTime = now - start;
 
-          let endDate = today;
-          let progress = 10;
+      let life = Math.round((passedTime / totalTime) * 100);
 
-          const statusKey = normalizeKey(d.status);
+      if (life > 100) life = 100;
+      if (life < 0) life = 0;
 
-          if (statusKey === "critique") progress = 25;
-          else if (statusKey === "encours") progress = 60;
-          else if (statusKey === "termine" || statusKey === "resolved") {
-            progress = 100;
-            endDate = new Date(d.updated_at || today);
-          }
+      const bar = document.getElementById("progressBar");
+      const text = document.getElementById("progressText");
 
-          new Chart(ctx, {
-            type: "line",
-            data: {
-              labels: [
-                start.toLocaleDateString(),
-                endDate.toLocaleDateString()
-              ],
-              datasets: [{
-                label: "Progression",
-                data: [0, progress],
-                borderColor: "red",
-                fill: false
-              }]
-            },
-            options: {
-              scales: {
-                y: {
-                  min: 0,
-                  max: 100
-                }
-              }
-            }
-          });
+      if (bar && text) {
+        bar.style.width = life + "%";
+        text.innerText = "Évolution: " + life + "%";
+      }
 
-          let life = progress;
-
-          const bar = document.getElementById("progressBar");
-          const text = document.getElementById("progressText");
-
-          if (bar && text) {
-            bar.style.width = life + "%";
-            text.innerText = "Évolution: " + life + "%";
-          }
-        }
-      })
-      .catch(() => {
-        document.getElementById("title").innerText = "Erreur chargement";
-      });
-  </script>
+    })
+    .catch(() => {
+      document.getElementById("title").innerText = "Erreur chargement";
+    });
+</script>
 
 </body>
 </html>
