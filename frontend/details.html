@@ -9,64 +9,106 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
+  
+  <header class="navbar">
+    <div class="container navbar-inner">
+      <a class="logo" href="index.html">
+        <span class="logo-mark">S</span>
+        <span class="logo-text">
+          <strong>SafeHaven</strong>
+          <small>Protection et réponse</small>
+        </span>
+      </a>
 
-<header class="navbar">
-  <div class="container navbar-inner">
-    <a class="logo" href="index.html">
-      <span class="logo-mark">S</span>
-      <span class="logo-text"><strong>SafeHaven</strong></span>
-    </a>
-    <nav class="nav">
-      <a class="nav-link" href="index.html">Accueil</a>
-      <a class="nav-link" href="signalements.html">Signalements</a>
-      <a class="nav-link" href="profile.html">Profile</a>
-    </nav>
-  </div>
-</header>
+      <button class="menu-btn" type="button">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
 
-<main class="container">
+      <nav class="nav">
+        <a class="nav-link active" href="index.html">Accueil</a>
+        <a class="nav-link" href="signalements.html">Signalements</a>
+        <a class="nav-link" href="contac.html">Contact</a>
+        <button class="nav-secondary" id="logoutBtn" type="button">Logout</button>
+        <a class="nav-link" href="profile.html">Profile</a>
+      </nav>
+    </div>
+  </header>
 
-<section class="details-card">
+  <main class="container">
+    <section class="details-card">
+      <div class="details-header">
+        <h1 id="title"></h1>
+        <span id="status" class="status-badge"></span>
+      </div>
 
-  <h1 id="title"></h1>
-  <span id="status"></span>
+      <div class="details-grid">
+        <div class="info-box">
+          <h3>Informations</h3>
+          <p><strong>Zone:</strong> <span id="desc"></span></p>
+          <p><strong>Date:</strong> <span id="date"></span></p>
+          <p><strong>Niveau:</strong> <span id="severity"></span></p>
+        </div>
 
-  <div class="details-grid">
-    <div>
-      <p>Zone: <span id="desc"></span></p>
-      <p>Date: <span id="date"></span></p>
-      <p>Severity: <span id="severity"></span></p>
+        <div class="info-box">
+          <h3>Coordonnées</h3>
+          <p><strong>Latitude:</strong> <span id="lat"></span></p>
+          <p><strong>Longitude:</strong> <span id="lng"></span></p>
+        </div>
+
+        <div class="info-box">
+          <h3>Impact</h3>
+          <p><strong>Victimes:</strong> <span id="victims"></span></p>
+          <p><strong>Blessés:</strong> <span id="injured"></span></p>
+          <p><strong>Dégâts:</strong> <span id="damage"></span></p>
+        </div>
+      </div>
+
+      <div class="tracking-box">
+        <h3>Suivi de la catastrophe</h3>
+        <div class="tracking-steps">
+          <div class="step" id="step-start">Début</div>
+          <div class="step" id="step-progress">En cours</div>
+          <div class="step" id="step-end">Terminé</div>
+        </div>
+        <canvas id="myChart" height="100"></canvas>
+      </div>
+
+      <div id="map" style="height:300px;"></div>
+
+      <div class="actions">
+        <a href="index.html" class="btn">Retour</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <h2>SafeHaven</h2>
+        <p>Un espace simple pour suivre les catastrophes.</p>
+      </div>
+
+      <div class="footer-links">
+        <h3>Liens rapides</h3>
+        <a href="index.html">Accueil</a>
+        <a href="services.html">Services</a>
+      </div>
+
+      <div class="footer-contact">
+        <h3>Contact</h3>
+        <p>contact@safehaven.ma</p>
+      </div>
     </div>
 
-    <div>
-      <p>Lat: <span id="lat"></span></p>
-      <p>Lng: <span id="lng"></span></p>
+    <div class="container footer-bottom">
+      <span>2026 SafeHaven</span>
     </div>
-
-    <div>
-      <p>Victimes: <span id="victims"></span></p>
-      <p>Blessés: <span id="injured"></span></p>
-      <p>Dégâts: <span id="damage"></span></p>
-    </div>
-  </div>
-
-  <div class="progress-container">
-    <div id="progressBar"></div>
-  </div>
-  <p id="progressText"></p>
-
-  <canvas id="myChart"></canvas>
-
-  <div id="map" style="height:300px;"></div>
-
-</section>
-
-</main>
-
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
+  </footer>
+ <script>
 const id = new URLSearchParams(window.location.search).get("id");
 const token = localStorage.getItem("token");
 
@@ -86,11 +128,14 @@ function getStatusVariant(status = "") {
   return "neutral";
 }
 
+
 function getProgress(status = "") {
   const key = normalizeKey(status);
+
   if (key === "critique") return 25;
   if (key === "encours" || key === "inprogress") return 60;
   if (key === "termine" || key === "resolved") return 100;
+
   return 10;
 }
 
@@ -98,7 +143,10 @@ const headers = {};
 if (token) headers.Authorization = "Bearer " + token;
 
 fetch("https://savehaven.aminearar.com/api/catastrophes/" + id, { headers })
-  .then(res => res.json())
+  .then(res => {
+    if (!res.ok) throw new Error();
+    return res.json();
+  })
   .then(d => {
 
     document.getElementById("title").innerText = d.title;
@@ -108,20 +156,28 @@ fetch("https://savehaven.aminearar.com/api/catastrophes/" + id, { headers })
     document.getElementById("lat").innerText = d.latitude;
     document.getElementById("lng").innerText = d.longitude;
 
-    document.getElementById("status").innerText = d.status;
+    const statusEl = document.getElementById("status");
+    statusEl.innerText = d.status;
+    statusEl.classList.add("status-" + getStatusVariant(d.status));
 
     document.getElementById("victims").innerText = d.victims ?? 0;
     document.getElementById("injured").innerText = d.injured ?? 0;
-    document.getElementById("damage").innerText = (d.damage ?? 0) + " DH";
+    document.getElementById("damage").innerText =
+      (d.damage ?? 0).toLocaleString() + " DH";
 
+   
     const lat = parseFloat(d.latitude);
     const lng = parseFloat(d.longitude);
 
     const map = L.map("map").setView([lat, lng], 14);
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
+      .addTo(map);
 
-    L.marker([lat, lng]).addTo(map).bindPopup(d.title).openPopup();
+    L.marker([lat, lng])
+      .addTo(map)
+      .bindPopup(d.title)
+      .openPopup();
 
     let radius = 500;
 
@@ -133,18 +189,21 @@ fetch("https://savehaven.aminearar.com/api/catastrophes/" + id, { headers })
       color: "red",
       fillColor: "#f03",
       fillOpacity: 0.3,
-      radius
+      radius: radius
     }).addTo(map);
 
+    /* 📊 CHART */
     const ctx = document.getElementById("myChart");
 
     if (ctx) {
       const start = new Date(d.date);
       const today = new Date();
 
+      let endDate = today;
       let progress = getProgress(d.status);
 
       if (normalizeKey(d.status) === "termine") {
+        endDate = new Date(d.updated_at || today);
         progress = 100;
       }
 
@@ -153,7 +212,7 @@ fetch("https://savehaven.aminearar.com/api/catastrophes/" + id, { headers })
         data: {
           labels: [
             start.toLocaleDateString(),
-            today.toLocaleDateString()
+            endDate.toLocaleDateString()
           ],
           datasets: [{
             label: "Progression",
@@ -164,21 +223,29 @@ fetch("https://savehaven.aminearar.com/api/catastrophes/" + id, { headers })
         },
         options: {
           scales: {
-            y: { min: 0, max: 100 }
+            y: {
+              min: 0,
+              max: 100
+            }
           }
         }
       });
 
+      /* 🔥 LIFE BAR */
+      const life = getProgress(d.status);
+
       const bar = document.getElementById("progressBar");
       const text = document.getElementById("progressText");
 
-      const life = getProgress(d.status);
-
-      bar.style.width = life + "%";
-      text.innerText = "Évolution: " + life + "%";
+      if (bar && text) {
+        bar.style.width = life + "%";
+        text.innerText = "Évolution: " + life + "%";
+      }
     }
+  })
+  .catch(() => {
+    document.getElementById("title").innerText = "Erreur chargement";
   });
 </script>
-
 </body>
 </html>
