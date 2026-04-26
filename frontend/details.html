@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
-  
+
   <header class="navbar">
     <div class="container navbar-inner">
       <a class="logo" href="index.html">
@@ -38,10 +38,16 @@
 
   <main class="container">
     <section class="details-card">
+
       <div class="details-header">
         <h1 id="title"></h1>
         <span id="status" class="status-badge"></span>
       </div>
+
+      <div class="life-container">
+        <div id="progressBar"></div>
+      </div>
+      <p id="progressText"></p>
 
       <div class="details-grid">
         <div class="info-box">
@@ -67,11 +73,13 @@
 
       <div class="tracking-box">
         <h3>Suivi de la catastrophe</h3>
+
         <div class="tracking-steps">
           <div class="step" id="step-start">Début</div>
           <div class="step" id="step-progress">En cours</div>
           <div class="step" id="step-end">Terminé</div>
         </div>
+
         <canvas id="myChart" height="100"></canvas>
       </div>
 
@@ -80,172 +88,142 @@
       <div class="actions">
         <a href="index.html" class="btn">Retour</a>
       </div>
+
     </section>
   </main>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
- <footer class="footer">
-    <div class="container footer-inner">
-      <div class="footer-brand">
-        <h2>SafeHaven</h2>
-        <p>Un espace simple pour suivre les catastrophes.</p>
-      </div>
 
-      <div class="footer-links">
-        <h3>Liens rapides</h3>
-        <a href="index.html">Accueil</a>
-        <a href="services.html">Services</a>
-      </div>
+  <script>
+    const id = new URLSearchParams(window.location.search).get("id");
+    const token = localStorage.getItem("token");
 
-      <div class="footer-contact">
-        <h3>Contact</h3>
-        <p>contact@safehaven.ma</p>
-      </div>
-    </div>
+    function normalizeKey(value = "") {
+      return String(value)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "");
+    }
 
-    <div class="container footer-bottom">
-      <span>2026 SafeHaven</span>
-    </div>
-  </footer>
- <script>
-const id = new URLSearchParams(window.location.search).get("id");
-const token = localStorage.getItem("token");
+    function getStatusVariant(status = "") {
+      const key = normalizeKey(status);
+      if (key === "critique" || key === "critical") return "critical";
+      if (key === "encours" || key === "inprogress") return "progress";
+      if (key === "elevee" || key === "high") return "high";
+      return "neutral";
+    }
 
-function normalizeKey(value = "") {
-  return String(value)
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "");
-}
+    const headers = {};
+    if (token) headers.Authorization = "Bearer " + token;
 
-function getStatusVariant(status = "") {
-  const key = normalizeKey(status);
-  if (key === "critique" || key === "critical") return "critical";
-  if (key === "encours" || key === "inprogress") return "progress";
-  if (key === "elevee" || key === "high") return "high";
-  return "neutral";
-}
+    fetch("https://savehaven.aminearar.com/api/catastrophes/" + id, { headers })
+      .then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then(d => {
 
+        document.getElementById("title").innerText = d.title;
+        document.getElementById("desc").innerText = d.description;
+        document.getElementById("date").innerText = d.date;
+        document.getElementById("severity").innerText = d.severity;
+        document.getElementById("lat").innerText = d.latitude;
+        document.getElementById("lng").innerText = d.longitude;
 
-function getProgress(status = "") {
-  const key = normalizeKey(status);
+        const statusEl = document.getElementById("status");
+        statusEl.innerText = d.status;
+        statusEl.classList.add("status-" + getStatusVariant(d.status));
 
-  if (key === "critique") return 25;
-  if (key === "encours" || key === "inprogress") return 60;
-  if (key === "termine" || key === "resolved") return 100;
+        document.getElementById("victims").innerText = d.victims ?? 0;
+        document.getElementById("injured").innerText = d.injured ?? 0;
+        document.getElementById("damage").innerText =
+          (d.damage ?? 0).toLocaleString() + " DH";
 
-  return 10;
-}
+        const lat = parseFloat(d.latitude);
+        const lng = parseFloat(d.longitude);
 
-const headers = {};
-if (token) headers.Authorization = "Bearer " + token;
+        const map = L.map("map").setView([lat, lng], 14);
 
-fetch("https://savehaven.aminearar.com/api/catastrophes/" + id, { headers })
-  .then(res => {
-    if (!res.ok) throw new Error();
-    return res.json();
-  })
-  .then(d => {
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
+          .addTo(map);
 
-    document.getElementById("title").innerText = d.title;
-    document.getElementById("desc").innerText = d.description;
-    document.getElementById("date").innerText = d.date;
-    document.getElementById("severity").innerText = d.severity;
-    document.getElementById("lat").innerText = d.latitude;
-    document.getElementById("lng").innerText = d.longitude;
+        L.marker([lat, lng])
+          .addTo(map)
+          .bindPopup(d.title)
+          .openPopup();
 
-    const statusEl = document.getElementById("status");
-    statusEl.innerText = d.status;
-    statusEl.classList.add("status-" + getStatusVariant(d.status));
+        let radius = 500;
 
-    document.getElementById("victims").innerText = d.victims ?? 0;
-    document.getElementById("injured").innerText = d.injured ?? 0;
-    document.getElementById("damage").innerText =
-      (d.damage ?? 0).toLocaleString() + " DH";
+        if (d.severity === "Critique") radius = 2000;
+        else if (d.severity === "Élevée") radius = 1200;
+        else if (d.severity === "Moyenne") radius = 800;
 
-   
-    const lat = parseFloat(d.latitude);
-    const lng = parseFloat(d.longitude);
+        L.circle([lat, lng], {
+          color: "red",
+          fillColor: "#f03",
+          fillOpacity: 0.3,
+          radius: radius
+        }).addTo(map);
 
-    const map = L.map("map").setView([lat, lng], 14);
+        const ctx = document.getElementById("myChart");
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
-      .addTo(map);
+        if (ctx) {
+          const start = new Date(d.date);
+          const today = new Date();
 
-    L.marker([lat, lng])
-      .addTo(map)
-      .bindPopup(d.title)
-      .openPopup();
+          let endDate = today;
+          let progress = 10;
 
-    let radius = 500;
+          const statusKey = normalizeKey(d.status);
 
-    if (d.severity === "Critique") radius = 2000;
-    else if (d.severity === "Élevée") radius = 1200;
-    else if (d.severity === "Moyenne") radius = 800;
+          if (statusKey === "critique") progress = 25;
+          else if (statusKey === "encours") progress = 60;
+          else if (statusKey === "termine" || statusKey === "resolved") {
+            progress = 100;
+            endDate = new Date(d.updated_at || today);
+          }
 
-    L.circle([lat, lng], {
-      color: "red",
-      fillColor: "#f03",
-      fillOpacity: 0.3,
-      radius: radius
-    }).addTo(map);
-
-    /* 📊 CHART */
-    const ctx = document.getElementById("myChart");
-
-    if (ctx) {
-      const start = new Date(d.date);
-      const today = new Date();
-
-      let endDate = today;
-      let progress = getProgress(d.status);
-
-      if (normalizeKey(d.status) === "termine") {
-        endDate = new Date(d.updated_at || today);
-        progress = 100;
-      }
-
-      new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: [
-            start.toLocaleDateString(),
-            endDate.toLocaleDateString()
-          ],
-          datasets: [{
-            label: "Progression",
-            data: [0, progress],
-            borderColor: "red",
-            fill: false
-          }]
-        },
-        options: {
-          scales: {
-            y: {
-              min: 0,
-              max: 100
+          new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: [
+                start.toLocaleDateString(),
+                endDate.toLocaleDateString()
+              ],
+              datasets: [{
+                label: "Progression",
+                data: [0, progress],
+                borderColor: "red",
+                fill: false
+              }]
+            },
+            options: {
+              scales: {
+                y: {
+                  min: 0,
+                  max: 100
+                }
+              }
             }
+          });
+
+          let life = progress;
+
+          const bar = document.getElementById("progressBar");
+          const text = document.getElementById("progressText");
+
+          if (bar && text) {
+            bar.style.width = life + "%";
+            text.innerText = "Évolution: " + life + "%";
           }
         }
+      })
+      .catch(() => {
+        document.getElementById("title").innerText = "Erreur chargement";
       });
+  </script>
 
-      /* 🔥 LIFE BAR */
-      const life = getProgress(d.status);
-
-      const bar = document.getElementById("progressBar");
-      const text = document.getElementById("progressText");
-
-      if (bar && text) {
-        bar.style.width = life + "%";
-        text.innerText = "Évolution: " + life + "%";
-      }
-    }
-  })
-  .catch(() => {
-    document.getElementById("title").innerText = "Erreur chargement";
-  });
-</script>
 </body>
 </html>
