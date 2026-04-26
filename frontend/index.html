@@ -157,10 +157,27 @@
           </div>
 
           <div class="field">
-            <label>Type ID</label>
-            <input type="number" name="type_id" required>
-          </div>
+  <label>Type de catastrophe</label>
+  <select name="type_id" id="typeSelect" required>
+    <option>Chargement...</option>
+  </select>
+</div>
         </div>
+
+        <div class="field">
+  <label>Victimes</label>
+  <input type="number" name="victims" placeholder="Nombre de victimes">
+</div>
+
+<div class="field">
+  <label>Blessés</label>
+  <input type="number" name="injured" placeholder="Nombre de blessés">
+</div>
+
+<div class="field">
+  <label>Dégâts (DH)</label>
+  <input type="number" name="damage" placeholder="Montant ">
+</div>
 
         <div class="form-actions">
           <button type="submit" class="form-submit">Ajouter</button>
