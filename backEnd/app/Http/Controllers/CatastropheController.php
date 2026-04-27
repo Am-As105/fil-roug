@@ -3,23 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\Catastrophe;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Throwable;
-use Twilio\Rest\Client;
+use App\Services\SmsService;
 
 class CatastropheController extends Controller
 {
     public function index()
     {
-        $catastrophes = Catastrophe::with('type')->latest()->get();
-        return response()->json($catastrophes);
+        return response()->json(
+            Catastrophe::with('type')->latest()->get()
+        );
     }
 
-    public function show($catastropheId)
+    public function show($id)
     {
-        $catastrophe = Catastrophe::with('type')->find($catastropheId);
+        $catastrophe = Catastrophe::with('type')->find($id);
 
         if (!$catastrophe) {
             return response()->json(['message' => 'Not found'], 404);
@@ -28,7 +26,7 @@ class CatastropheController extends Controller
         return response()->json($catastrophe);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, SmsService $sms)
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -46,11 +44,14 @@ class CatastropheController extends Controller
 
         $catastrophe = Catastrophe::create($validated);
 
-        try {
-            $this->sendSmsNotification($catastrophe, $request->user());
-        } catch (\Throwable $e) {
-            Log::error($e->getMessage());
-        }
+        $sms->send(null, sprintf(
+            'Nouvelle catastrophe: %s. Zone: %s. Date: %s. Statut: %s. Severite: %s.',
+            $catastrophe->title,
+            $catastrophe->description ?? 'Non precisee',
+            $catastrophe->date,
+            $catastrophe->status,
+            $catastrophe->severity
+        ));
 
         return response()->json([
             'message' => 'Catastrophe created successfully',
@@ -58,13 +59,9 @@ class CatastropheController extends Controller
         ], 201);
     }
 
-    public function update(Request $request, $catastropheId)
+    public function update(Request $request, $id)
     {
-        if ($response = $this->ensureAdmin($request)) {
-            return $response;
-        }
-
-        $catastrophe = Catastrophe::find($catastropheId);
+        $catastrophe = Catastrophe::find($id);
 
         if (!$catastrophe) {
             return response()->json(['message' => 'Not found'], 404);
@@ -92,13 +89,9 @@ class CatastropheController extends Controller
         ]);
     }
 
-    public function delete(Request $request, $catastropheId)
+    public function delete($id)
     {
-        if ($response = $this->ensureAdmin($request)) {
-            return $response;
-        }
-
-        $catastrophe = Catastrophe::find($catastropheId);
+        $catastrophe = Catastrophe::find($id);
 
         if (!$catastrophe) {
             return response()->json(['message' => 'Not found'], 404);
@@ -107,77 +100,5 @@ class CatastropheController extends Controller
         $catastrophe->delete();
 
         return response()->json(['message' => 'deleted']);
-    }
-
-    private function ensureAdmin(Request $request)
-    {
-        $user = $request->user();
-
-        if (!$user || !$user->isAdmin()) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
-
-        return null;
-    }
-
-    private function sendSmsNotification(Catastrophe $catastrophe, ?User $user = null): void
-    {
-        $sid = config('services.twilio.sid');
-        $token = config('services.twilio.token');
-        $from = $this->normalizePhoneNumber(config('services.twilio.from'));
-        $recipient = $this->normalizePhoneNumber($user?->phone ?: config('services.twilio.to'));
-
-        if (!$sid || !$token || !$from || !$recipient) {
-            return;
-        }
-
-        try {
-            $client = new Client($sid, $token);
-
-            $message = sprintf(
-                'Nouvelle catastrophe: %s. Zone: %s. Date: %s. Statut: %s. Severite: %s.',
-                $catastrophe->title,
-                $catastrophe->description ?? 'Non precisee',
-                $catastrophe->date,
-                $catastrophe->status,
-                $catastrophe->severity
-            );
-
-            $client->messages->create($recipient, [
-                'from' => $from,
-                'body' => $message,
-            ]);
-        } catch (Throwable $e) {
-            Log::warning($e->getMessage());
-        }
-    }
-
-    private function normalizePhoneNumber(?string $phone)
-    {
-        $phone = trim((string) $phone);
-
-        if ($phone === '') {
-            return null;
-        }
-
-        $phone = preg_replace('/[\s\-\.\(\)]/', '', $phone);
-
-        if (str_starts_with($phone, '+')) {
-            return $phone;
-        }
-
-        if (str_starts_with($phone, '00')) {
-            return '+' . substr($phone, 2);
-        }
-
-        if (preg_match('/^0[5-7]\d{8}$/', $phone)) {
-            return '+212' . substr($phone, 1);
-        }
-
-        if (preg_match('/^212[5-7]\d{8}$/', $phone)) {
-            return '+' . $phone;
-        }
-
-        return $phone;
     }
 }
