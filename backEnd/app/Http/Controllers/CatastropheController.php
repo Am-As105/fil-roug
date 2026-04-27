@@ -22,7 +22,7 @@ class CatastropheController extends Controller
     {
         $catastrophe = Catastrophe::with('type')->find($catastropheId);
 
-        if (! $catastrophe) {
+        if (!$catastrophe) {
             return response()->json(['message' => 'Not found'], 404);
         }
 
@@ -40,9 +40,9 @@ class CatastropheController extends Controller
             'severity' => 'required|string|max:255',
             'status' => 'required|string|max:255',
             'type_id' => 'required|exists:types,id',
-             'victims' => 'nullable|integer',
-             'injured' => 'nullable|integer',
-             'damage' => 'nullable|numeric',
+            'victims' => 'nullable|integer',
+            'injured' => 'nullable|integer',
+            'damage' => 'nullable|numeric',
         ]);
 
         $catastrophe = Catastrophe::create([
@@ -55,19 +55,17 @@ class CatastropheController extends Controller
             'status' => $request->status,
             'type_id' => $request->type_id,
         ]);
-        $response = Http::withHeaders([
-    'Authorization' => 'Bearer ' . env('SMS_API_KEY'),
-])->post('https://textbee.dev/api/v1/sms/send', [
-    'to' => '+212724791194',
-    'message' => 'New Catastrophe: ' . $catastrophe->title
-]);
 
-Log::info('SMS response', [
-    'status' => $response->status(),
-    'body' => $response->body()
-]);
-
-        $this->sendAlert($catastrophe);
+        try {
+            Http::withHeaders([
+                'Authorization' => 'Bearer ' . env('SMS_API_KEY'),
+            ])->post('https://textbee.dev/api/v1/sms/send', [
+                'to' => '+212724791194',
+                'message' => 'New Catastrophe: ' . $catastrophe->title
+            ]);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+        }
 
         return response()->json([
             'message' => 'Catastrophe created successfully',
@@ -83,7 +81,7 @@ Log::info('SMS response', [
 
         $catastrophe = Catastrophe::find($catastropheId);
 
-        if (! $catastrophe) {
+        if (!$catastrophe) {
             return response()->json(['message' => 'Not found'], 404);
         }
 
@@ -114,7 +112,7 @@ Log::info('SMS response', [
 
         $catastrophe = Catastrophe::find($catastropheId);
 
-        if (! $catastrophe) {
+        if (!$catastrophe) {
             return response()->json(['message' => 'Not found'], 404);
         }
 
@@ -127,11 +125,10 @@ Log::info('SMS response', [
     {
         $user = $request->user();
 
-        if (! $user || ! $user->isAdmin()) {
+        if (!$user || !$user->isAdmin()) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
         return null;
     }
-
 }
