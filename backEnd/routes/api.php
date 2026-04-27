@@ -5,7 +5,7 @@ use App\Http\Controllers\CatastropheController;
 use App\Http\Controllers\TypeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Log;
+// use Illuminate\Support\Facades\Log;
 
 
 Route::get('/user', function (Request $request) {
@@ -25,22 +25,3 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/catastrophes/{catastropheId}', [CatastropheController::class, 'delete']);
 });
 
-Route::get('/sms-test', function () {
-    try {
-        $sid = env('TWILIO_SID');
-        $token = env('TWILIO_TOKEN');
-
-        if (!$sid || !$token) {
-            return response()->json(['error' => 'missing twilio env']);
-        }
-
-        return response()->json(['ok' => true, 'twilio_ready' => true]);
-
-    } catch (\Throwable $e) {
-        Log::error($e->getMessage());
-
-        return response()->json([
-            'error' => $e->getMessage()
-        ], 500);
-    }
-});
