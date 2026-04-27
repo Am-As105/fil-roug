@@ -33,53 +33,34 @@ class CatastropheController extends Controller
             'data' => $catastrophe
         ]);
     }
+    public function store(Request $request)
+{
+    try {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'date' => 'required|date',
+            'severity' => 'required|string|max:255',
+            'status' => 'required|string|max:255',
+            'type_id' => 'required',
+        ]);
 
-    public function store(Request $request, SmsService $sms)
-    {
-        try {
-            $validated = $request->validate([
-                'title' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'latitude' => 'required|numeric',
-                'longitude' => 'required|numeric',
-                'date' => 'required|date',
-                'severity' => 'required|string|max:255',
-                'status' => 'required|string|max:255',
-                'type_id' => 'required|exists:types,id',
-                'victims' => 'nullable|integer',
-                'injured' => 'nullable|integer',
-                'damage' => 'nullable|numeric',
-            ]);
+        $catastrophe = Catastrophe::create($validated);
 
-            $catastrophe = Catastrophe::create($validated);
+        return response()->json([
+            'message' => 'success',
+            'data' => $catastrophe
+        ], 201);
 
-            try {
-                $sms->send(null, sprintf(
-                    'Nouvelle catastrophe: %s. Zone: %s. Date: %s. Statut: %s.',
-                    $catastrophe->title,
-                    $catastrophe->description ?? 'Non precisee',
-                    $catastrophe->date,
-                    $catastrophe->status
-                ));
-            } catch (\Throwable $e) {
-                Log::error('SMS error: ' . $e->getMessage());
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Catastrophe créée avec succès',
-                'data' => $catastrophe->load('type')
-            ], 201);
-
-        } catch (\Throwable $e) {
-            Log::error('Store error: ' . $e->getMessage());
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur serveur'
-            ], 500);
-        }
+    } catch (\Throwable $e) {
+        return response()->json([
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
 
     public function update(Request $request, $id)
     {
