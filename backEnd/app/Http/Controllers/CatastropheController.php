@@ -54,7 +54,6 @@ class CatastropheController extends Controller
         ]);
 
         $catastrophe = Catastrophe::create($validated);
-        $users = User::whereNotNull('email')->get();
 
         $users = User::whereNotNull('email')->get();
 
