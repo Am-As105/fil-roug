@@ -1,27 +1,32 @@
 <?php
 
+namespace App\Services;
 
-    
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class SmsService
 {
-    public function send()
+    public function send($message)
     {
-        return Http::withHeaders([
-            'Authorization' => 'App ' . env('INFOBIP_API_KEY'),
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/json'
-        ])->post(env('INFOBIP_BASE_URL') . '/sms/3/messages', [
-            "messages" => [
-                [
-                    "destinations" => [
-                        ["to" => "+212612013501"]
-                    ],
-                    "from" => "InfoSMS",
-                    "text" => "Test SMS"
+        try {
+            return Http::withHeaders([
+                'Authorization' => 'App ' . config('services.infobip.key'),
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json'
+            ])->post(config('services.infobip.base_url') . '/sms/3/messages', [
+                "messages" => [
+                    [
+                        "destinations" => [
+                            ["to" => config('services.infobip.to')]
+                        ],
+                        "from" => "InfoSMS",
+                        "text" => $message
+                    ]
                 ]
-            ]
-        ]);
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('SMS error: ' . $e->getMessage());
+        }
     }
 }

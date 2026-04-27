@@ -30,5 +30,10 @@ return [
         'to' => env('TWILIO_TO'),
         'verify_service_sid' => env('TWILIO_VERIFY_SERVICE_SID'),
     ],
+    'infobip' => [
+    'key' => env('INFOBIP_API_KEY'),
+    'base_url' => env('INFOBIP_BASE_URL'),
+    'to' => env('INFOBIP_TO'),
+],
 
 ];
