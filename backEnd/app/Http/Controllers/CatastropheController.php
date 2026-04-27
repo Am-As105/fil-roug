@@ -33,32 +33,34 @@ class CatastropheController extends Controller
             'data' => $catastrophe
         ]);
     }
-    public function store(Request $request)
+public function store(Request $request)
 {
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'latitude' => 'required|numeric',
+        'longitude' => 'required|numeric',
+        'date' => 'required|date',
+        'severity' => 'required|string|max:255',
+        'status' => 'required|string|max:255',
+        'type_id' => 'required|exists:types,id',
+        'victims' => 'nullable|integer',
+        'injured' => 'nullable|integer',
+        'damage' => 'nullable|numeric',
+    ]);
+
+    $catastrophe = Catastrophe::create($validated);
+
     try {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'date' => 'required|date',
-            'severity' => 'required|string|max:255',
-            'status' => 'required|string|max:255',
-            'type_id' => 'required',
-        ]);
-
-        $catastrophe = Catastrophe::create($validated);
-
-        return response()->json([
-            'message' => 'success',
-            'data' => $catastrophe
-        ], 201);
-
+        $this->sendSmsNotification($catastrophe, $request->user());
     } catch (\Throwable $e) {
-        return response()->json([
-            'error' => $e->getMessage()
-        ], 500);
+        \Log::error($e->getMessage());
     }
+
+    return response()->json([
+        'message' => 'Catastrophe created successfully',
+        'catastrophe' => $catastrophe->load('type'),
+    ], 201);
 }
 
 
