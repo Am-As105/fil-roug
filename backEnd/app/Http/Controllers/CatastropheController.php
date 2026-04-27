@@ -50,6 +50,8 @@ public function store(Request $request)
     ]);
 
     $catastrophe = Catastrophe::create($validated);
+    $sms = new SmsService();
+$   $sms->send();
 
     try {
         $this->sendSmsNotification($catastrophe, $request->user());
