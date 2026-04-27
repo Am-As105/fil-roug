@@ -52,10 +52,9 @@ class CatastropheController extends Controller
 
         $catastrophe = Catastrophe::create($validated);
 
-        $sms = new \App\Services\SmsService();
-        $sms->send(
-            "Nouvelle catastrophe: {$catastrophe->title} - Statut: {$catastrophe->status}"
-        );
+        
+$sms = new \App\Services\SmsService();
+$sms->send("Nouvelle catastrophe: {$catastrophe->title}");
 
         return response()->json([
             'success' => true,
