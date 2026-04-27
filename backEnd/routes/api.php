@@ -5,6 +5,8 @@ use App\Http\Controllers\CatastropheController;
 use App\Http\Controllers\TypeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Log;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -24,18 +26,21 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get('/sms-test', function () {
-    $twilio = new \Twilio\Rest\Client(
-        config('services.twilio.sid'),
-        config('services.twilio.token')
-    );
+    try {
+        $sid = env('TWILIO_SID');
+        $token = env('TWILIO_TOKEN');
 
-    $twilio->messages->create(
-        config('services.twilio.to'),
-        [
-            'from' => config('services.twilio.from'),
-            'body' => 'SMS works '
-        ]
-    );
+        if (!$sid || !$token) {
+            return response()->json(['error' => 'missing twilio env']);
+        }
 
-    return 'sent';
+        return response()->json(['ok' => true, 'twilio_ready' => true]);
+
+    } catch (\Throwable $e) {
+        Log::error($e->getMessage());
+
+        return response()->json([
+            'error' => $e->getMessage()
+        ], 500);
+    }
 });
