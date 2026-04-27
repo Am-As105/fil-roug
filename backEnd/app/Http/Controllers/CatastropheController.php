@@ -56,16 +56,6 @@ class CatastropheController extends Controller
             'type_id' => $request->type_id,
         ]);
 
-        try {
-            Http::withHeaders([
-                'Authorization' => 'Bearer ' . env('SMS_API_KEY'),
-            ])->post('https://textbee.dev/api/v1/sms/send', [
-                'to' => '+212724791194',
-                'message' => 'New Catastrophe: ' . $catastrophe->title
-            ]);
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-        }
 
         return response()->json([
             'message' => 'Catastrophe created successfully',
