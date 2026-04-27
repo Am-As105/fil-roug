@@ -33,39 +33,45 @@ class CatastropheController extends Controller
             'data' => $catastrophe
         ]);
     }
-public function store(Request $request)
+    public function store(Request $request)
 {
-    $validated = $request->validate([
-        'title' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'latitude' => 'required|numeric',
-        'longitude' => 'required|numeric',
-        'date' => 'required|date',
-        'severity' => 'required|string|max:255',
-        'status' => 'required|string|max:255',
-        'type_id' => 'required|exists:types,id',
-        'victims' => 'nullable|integer',
-        'injured' => 'nullable|integer',
-        'damage' => 'nullable|numeric',
-    ]);
-
-    $catastrophe = Catastrophe::create($validated);
-     $sms = new SmsService();
-$sms->send(
-    "Nouvelle catastrophe: {$catastrophe->title}, Statut: {$catastrophe->status}"
-);
     try {
-        $this->sendSmsNotification($catastrophe, $request->user());
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'date' => 'required|date',
+            'severity' => 'required|string|max:255',
+            'status' => 'required|string|max:255',
+            'type_id' => 'required|exists:types,id',
+            'victims' => 'nullable|integer',
+            'injured' => 'nullable|integer',
+            'damage' => 'nullable|numeric',
+        ]);
+
+        $catastrophe = Catastrophe::create($validated);
+
+        $sms = new \App\Services\SmsService();
+        $sms->send(
+            "Nouvelle catastrophe: {$catastrophe->title} - Statut: {$catastrophe->status}"
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Catastrophe created successfully',
+            'data' => $catastrophe
+        ], 201);
+
     } catch (\Throwable $e) {
         \Log::error($e->getMessage());
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur serveur'
+        ], 500);
     }
-
-    return response()->json([
-        'message' => 'Catastrophe created successfully',
-        'catastrophe' => $catastrophe->load('type'),
-    ], 201);
 }
-
 
     public function update(Request $request, $id)
     {
