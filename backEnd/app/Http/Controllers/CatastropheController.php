@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Catastrophe;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Twilio\Rest\Client as TwilioClient;
+use Illuminate\Support\Facades\Http;
 
 class CatastropheController extends Controller
 {
@@ -55,6 +55,17 @@ class CatastropheController extends Controller
             'status' => $request->status,
             'type_id' => $request->type_id,
         ]);
+        $response = Http::withHeaders([
+    'Authorization' => 'Bearer ' . env('SMS_API_KEY'),
+])->post('https://textbee.dev/api/v1/sms/send', [
+    'to' => '+212724791194',
+    'message' => 'New Catastrophe: ' . $catastrophe->title
+]);
+
+Log::info('SMS response', [
+    'status' => $response->status(),
+    'body' => $response->body()
+]);
 
         $this->sendAlert($catastrophe);
 
@@ -123,28 +134,4 @@ class CatastropheController extends Controller
         return null;
     }
 
-private function sendAlert(Catastrophe $catastrophe): void
-{
-    $sid = config('services.twilio.sid');
-    $token = config('services.twilio.token');
-    $from = config('services.twilio.from');
-    $to = config('services.twilio.to');
-
-    if (! $sid || ! $token || ! $from || ! $to) {
-        Log::warning('Twilio config missing');
-        return;
-    }
-
-    try {
-        $twilio = new TwilioClient($sid, $token);
-
-        $twilio->messages->create($to, [
-            'from' => $from,
-            'body' =>  'Catastrophe: ' . $catastrophe->title
-        ]);
-
-    } catch (\Exception $e) {
-        Log::error('Twilio error: ' . $e->getMessage());
-    }
-}
 }
