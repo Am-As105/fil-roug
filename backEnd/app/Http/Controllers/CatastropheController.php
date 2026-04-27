@@ -31,7 +31,7 @@ class CatastropheController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'latitude' => 'required|numeric',
@@ -45,17 +45,7 @@ class CatastropheController extends Controller
             'damage' => 'nullable|numeric',
         ]);
 
-        $catastrophe = Catastrophe::create([
-            'title' => $request->title,
-            'description' => $request->description,
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
-            'date' => $request->date,
-            'severity' => $request->severity,
-            'status' => $request->status,
-            'type_id' => $request->type_id,
-        ]);
-
+        $catastrophe = Catastrophe::create($validated);
 
         return response()->json([
             'message' => 'Catastrophe created successfully',
@@ -84,6 +74,9 @@ class CatastropheController extends Controller
             'severity' => 'sometimes|string|max:255',
             'status' => 'sometimes|string|max:255',
             'type_id' => 'sometimes|exists:types,id',
+            'victims' => 'sometimes|nullable|integer',
+            'injured' => 'sometimes|nullable|integer',
+            'damage' => 'sometimes|nullable|numeric',
         ]);
 
         $catastrophe->update($validated);
