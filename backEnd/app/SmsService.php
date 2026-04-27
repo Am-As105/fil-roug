@@ -10,7 +10,7 @@ class SmsService
     public function send($message)
     {
         try {
-            Http::withHeaders([
+            $response = Http::withHeaders([
                 'Authorization' => 'App ' . env('INFOBIP_API_KEY'),
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
@@ -18,13 +18,21 @@ class SmsService
                 "messages" => [
                     [
                         "destinations" => [
-                            ["to" => env('INFOBIP_TO')]
+                            [
+                                "to" => env('INFOBIP_TO')
+                            ]
                         ],
-                        "from" => "ServiceSMS",
+                        "from" => "447491163443",
                         "text" => $message
                     ]
                 ]
             ]);
+
+            Log::info('SMS response', [
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+
         } catch (\Throwable $e) {
             Log::error('SMS failed: ' . $e->getMessage());
         }
