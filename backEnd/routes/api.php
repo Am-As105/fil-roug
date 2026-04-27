@@ -22,3 +22,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::match(['put', 'patch'], '/catastrophes/{catastropheId}', [CatastropheController::class, 'update']);
     Route::delete('/catastrophes/{catastropheId}', [CatastropheController::class, 'delete']);
 });
+
+Route::get('/sms-test', function () {
+    $twilio = new \Twilio\Rest\Client(
+        config('services.twilio.sid'),
+        config('services.twilio.token')
+    );
+
+    $twilio->messages->create(
+        config('services.twilio.to'),
+        [
+            'from' => config('services.twilio.from'),
+            'body' => 'SMS works '
+        ]
+    );
+
+    return 'sent';
+});

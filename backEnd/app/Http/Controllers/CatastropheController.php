@@ -123,32 +123,28 @@ class CatastropheController extends Controller
         return null;
     }
 
-    private function sendAlert(Catastrophe $catastrophe): void
-    {
-        $sid = config('services.twilio.sid');
-        $token = config('services.twilio.token');
-        $from = config('services.twilio.from');
-        $to = config('services.twilio.to'); 
+private function sendAlert(Catastrophe $catastrophe): void
+{
+    $sid = config('services.twilio.sid');
+    $token = config('services.twilio.token');
+    $from = config('services.twilio.from');
+    $to = config('services.twilio.to');
 
-        if (! $sid || ! $token || ! $from || ! $to) {
-            return;
-        }
-
-        try {
-            $twilio = new TwilioClient($sid, $token);
-
-            $twilio->messages->create(
-                $to,
-                [
-                    'from' => $from,
-                    'body' => 'New Catastrophe: ' . $catastrophe->title,
-                ]
-            );
-        } catch (\Throwable $throwable) {
-            Log::warning('Twilio alert failed', [
-                'catastrophe_id' => $catastrophe->id,
-                'error' => $throwable->getMessage(),
-            ]);
-        }
+    if (! $sid || ! $token || ! $from || ! $to) {
+        Log::warning('Twilio config missing');
+        return;
     }
+
+    try {
+        $twilio = new TwilioClient($sid, $token);
+
+        $twilio->messages->create($to, [
+            'from' => $from,
+            'body' =>  'Catastrophe: ' . $catastrophe->title
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Twilio error: ' . $e->getMessage());
+    }
+}
 }
