@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Catastrophe;
 use Illuminate\Http\Request;
-use App\Services\SmsService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-
 use App\Models\User;
 
 class CatastropheController extends Controller
@@ -36,49 +34,54 @@ class CatastropheController extends Controller
             'data' => $catastrophe
         ]);
     }
+
     public function store(Request $request)
-{
-    try {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'date' => 'required|date',
-            'severity' => 'required|string|max:255',
-            'status' => 'required|string|max:255',
-            'type_id' => 'required|exists:types,id',
-            'victims' => 'nullable|integer',
-            'injured' => 'nullable|integer',
-            'damage' => 'nullable|numeric',
-        ]);
+    {
+        try {
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'latitude' => 'required|numeric',
+                'longitude' => 'required|numeric',
+                'date' => 'required|date',
+                'severity' => 'required|string|max:255',
+                'status' => 'required|string|max:255',
+                'type_id' => 'required|exists:types,id',
+                'victims' => 'nullable|integer',
+                'injured' => 'nullable|integer',
+                'damage' => 'nullable|numeric',
+            ]);
 
-        $catastrophe = Catastrophe::create($validated);
+            $catastrophe = Catastrophe::create($validated);
 
-        $users = User::whereNotNull('email')->get();
+            try {
+                $users = User::whereNotNull('email')->get();
 
-foreach ($users as $user) {
-    Mail::raw("Nouvelle catastrophe: {$catastrophe->title}", function ($message) use ($user) {
-        $message->to($user->email)
-                ->subject("Nouvelle Catastrophe");
-        });
+                foreach ($users as $user) {
+                    Mail::raw("Nouvelle catastrophe: {$catastrophe->title}", function ($message) use ($user) {
+                        $message->to($user->email)
+                                ->subject("Nouvelle Catastrophe");
+                    });
+                }
+            } catch (\Exception $e) {
+                Log::error("Email failed: " . $e->getMessage());
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Catastrophe created successfully',
+                'data' => $catastrophe
+            ], 201);
+
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur serveur'
+            ], 500);
+        }
     }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Catastrophe created successfully',
-            'data' => $catastrophe
-        ], 201);
-
-    } catch (\Throwable $e) {
-        \Log::error($e->getMessage());
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Erreur serveur'
-        ], 500);
-    }
-}
 
     public function update(Request $request, $id)
     {
