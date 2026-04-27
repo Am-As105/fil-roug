@@ -13,10 +13,7 @@ class CatastropheController extends Controller
 {
     public function index()
     {
-        $catastrophes = Catastrophe::with('type')
-            ->latest()
-            ->get();
-
+        $catastrophes = Catastrophe::with('type')->latest()->get();
         return response()->json($catastrophes);
     }
 
@@ -48,7 +45,12 @@ class CatastropheController extends Controller
         ]);
 
         $catastrophe = Catastrophe::create($validated);
-        $this->sendSmsNotification($catastrophe, $request->user());
+
+        try {
+            $this->sendSmsNotification($catastrophe, $request->user());
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage());
+        }
 
         return response()->json([
             'message' => 'Catastrophe created successfully',
@@ -126,16 +128,12 @@ class CatastropheController extends Controller
         $recipient = $this->normalizePhoneNumber($user?->phone ?: config('services.twilio.to'));
 
         if (!$sid || !$token || !$from || !$recipient) {
-            Log::info('SMS skipped: missing Twilio settings or phone number.', [
-                'catastrophe_id' => $catastrophe->id,
-                'user_id' => $user?->id,
-            ]);
-
             return;
         }
 
         try {
             $client = new Client($sid, $token);
+
             $message = sprintf(
                 'Nouvelle catastrophe: %s. Zone: %s. Date: %s. Statut: %s. Severite: %s.',
                 $catastrophe->title,
@@ -150,11 +148,7 @@ class CatastropheController extends Controller
                 'body' => $message,
             ]);
         } catch (Throwable $e) {
-            Log::warning('SMS notification failed.', [
-                'catastrophe_id' => $catastrophe->id,
-                'user_id' => $user?->id,
-                'error' => $e->getMessage(),
-            ]);
+            Log::warning($e->getMessage());
         }
     }
 
