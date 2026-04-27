@@ -6,6 +6,9 @@ use App\Models\Catastrophe;
 use Illuminate\Http\Request;
 use App\Services\SmsService;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+
+use App\Models\User;
 
 class CatastropheController extends Controller
 {
@@ -51,10 +54,16 @@ class CatastropheController extends Controller
         ]);
 
         $catastrophe = Catastrophe::create($validated);
+        $users = User::whereNotNull('email')->get();
 
-        
-$sms = new \App\Services\SmsService();
-$sms->send("Nouvelle catastrophe: {$catastrophe->title}");
+        $users = User::whereNotNull('email')->get();
+
+foreach ($users as $user) {
+    Mail::raw("Nouvelle catastrophe: {$catastrophe->title}", function ($message) use ($user) {
+        $message->to($user->email)
+                ->subject("Nouvelle Catastrophe");
+        });
+    }
 
         return response()->json([
             'success' => true,
