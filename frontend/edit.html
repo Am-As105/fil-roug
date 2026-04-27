@@ -88,17 +88,21 @@
 
   <header class="navbar">
     <div class="container navbar-inner">
-      <a class="logo" href="index.html">
-        <span class="logo-mark">S</span>
-        <span class="logo-text"><strong>SafeHaven</strong></span>
-      </a>
-       <nav class="nav" id="primary-navigation" aria-label="Menu principal">
+      <a class="logo" href="index.html" aria-label="Accueil SafeHaven">SafeHaven</a>
+
+      <button class="menu-btn" type="button" aria-controls="primary-navigation" aria-expanded="false" aria-label="Ouvrir le menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <nav class="nav" id="primary-navigation" aria-label="Menu principal">
         <a class="nav-link active" href="index.html" aria-current="page">Accueil</a>
         <a class="nav-link" href="signalements.html">Signalements</a>
         <a class="nav-link" href="contac.html">Contact</a>
-        <button  style="color: violet;" class="nav-secondary" id="logoutBtn" type="button">Logout</button>
-        <a  class="nav-link" href="profile.html">  Profile </a>
-        <a class="nav-primary add-disaster-toggle" href="#add-disaster">Ajouter un signalement</a>
+        <button class="nav-secondary" id="logoutBtn" type="button">Déconnexion</button>
+        <a class="nav-link" href="profile.html">Profil</a>
+        <a class="nav-primary add-disaster-toggle" href="index.html#add-disaster">Ajouter un signalement</a>
       </nav>
     </div>
   </header>

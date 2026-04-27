@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Détails catastrophe</title>
+  <title>DÃ©tails catastrophe - SafeHaven</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/details.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -12,33 +12,26 @@
 
   <header class="navbar">
     <div class="container navbar-inner">
-      <a class="logo" href="index.html">
-        <span class="logo-mark">S</span>
-        <span class="logo-text">
-          <strong>SafeHaven</strong>
-          <small>Protection et réponse</small>
-        </span>
-      </a>
+      <a class="logo" href="index.html" aria-label="Accueil SafeHaven">SafeHaven</a>
 
-      <button class="menu-btn" type="button">
+      <button class="menu-btn" type="button" aria-controls="primary-navigation" aria-expanded="false" aria-label="Ouvrir le menu">
         <span></span>
         <span></span>
         <span></span>
       </button>
 
-      <nav class="nav">
-        <a class="nav-link active" href="index.html">Accueil</a>
+      <nav class="nav" id="primary-navigation" aria-label="Menu principal">
+        <a class="nav-link active" href="index.html" aria-current="page">Accueil</a>
         <a class="nav-link" href="signalements.html">Signalements</a>
         <a class="nav-link" href="contac.html">Contact</a>
-        <button class="nav-secondary" id="logoutBtn" type="button">Logout</button>
-        <a class="nav-link" href="profile.html">Profile</a>
+        <button class="nav-secondary" id="logoutBtn" type="button">Déconnexion</button>
+        <a class="nav-link" href="profile.html">Profil</a>
       </nav>
     </div>
   </header>
 
   <main class="container">
     <section class="details-card">
-
       <div class="details-header">
         <h1 id="title"></h1>
         <span id="status" class="status-badge"></span>
@@ -58,7 +51,7 @@
         </div>
 
         <div class="info-box">
-          <h3>Coordonnées</h3>
+          <h3>CoordonnÃ©es</h3>
           <p><strong>Latitude:</strong> <span id="lat"></span></p>
           <p><strong>Longitude:</strong> <span id="lng"></span></p>
         </div>
@@ -66,136 +59,31 @@
         <div class="info-box">
           <h3>Impact</h3>
           <p><strong>Victimes:</strong> <span id="victims"></span></p>
-          <p><strong>Blessés:</strong> <span id="injured"></span></p>
-          <p><strong>Dégâts:</strong> <span id="damage"></span></p>
+          <p><strong>BlessÃ©s:</strong> <span id="injured"></span></p>
+          <p><strong>DÃ©gÃ¢ts:</strong> <span id="damage"></span></p>
         </div>
       </div>
 
       <div class="tracking-box">
-
         <div class="timeline">
-          <div class="step" id="step-start">Début</div>
+          <div class="step" id="step-start">DÃ©but</div>
           <div class="step" id="step-current">En cours</div>
-          <div class="step" id="step-end">Terminée</div>
+          <div class="step" id="step-end">TerminÃ©e</div>
         </div>
-
       </div>
 
-      <div id="map" style="height:300px;"></div>
+      <div id="detail-map" style="height:300px; width:100%; border:1px solid #d1d6e6;"></div>
 
       <div class="actions">
         <a href="index.html" class="btn">Retour</a>
       </div>
-
     </section>
   </main>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <script>
-    const id = new URLSearchParams(window.location.search).get("id");
-    const token = localStorage.getItem("token");
-
-    function normalizeKey(value = "") {
-      return String(value)
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "");
-    }
-
-    function getStatusVariant(status = "") {
-      const key = normalizeKey(status);
-      if (key === "critique" || key === "critical") return "critical";
-      if (key === "encours" || key === "inprogress") return "progress";
-      if (key === "elevee" || key === "high") return "high";
-      return "neutral";
-    }
-
-    const headers = {};
-    if (token) headers.Authorization = "Bearer " + token;
-
-    fetch("https://savehaven.aminearar.com/api/catastrophes/" + id, { headers })
-      .then(res => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then(d => {
-
-        document.getElementById("title").innerText = d.title;
-        document.getElementById("desc").innerText = d.description;
-        document.getElementById("date").innerText = d.date;
-        document.getElementById("severity").innerText = d.severity;
-        document.getElementById("lat").innerText = d.latitude;
-        document.getElementById("lng").innerText = d.longitude;
-
-        const statusEl = document.getElementById("status");
-        statusEl.innerText = d.status;
-        statusEl.classList.add("status-" + getStatusVariant(d.status));
-
-        document.getElementById("victims").innerText = d.victims ?? 0;
-        document.getElementById("injured").innerText = d.injured ?? 0;
-        document.getElementById("damage").innerText =
-          (d.damage ?? 0).toLocaleString() + " DH";
-
-        const lat = parseFloat(d.latitude);
-        const lng = parseFloat(d.longitude);
-
-        const map = L.map("map").setView([lat, lng], 14);
-
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
-          .addTo(map);
-
-        L.marker([lat, lng])
-          .addTo(map)
-          .bindPopup(d.title)
-          .openPopup();
-
-        let radius = 500;
-
-        if (d.severity === "Critique") radius = 2000;
-        else if (d.severity === "Élevée") radius = 1200;
-        else if (d.severity === "Moyenne") radius = 800;
-
-        L.circle([lat, lng], {
-          color: "red",
-          fillColor: "#f03",
-          fillOpacity: 0.3,
-          radius: radius
-        }).addTo(map);
-
-        const startStep = document.getElementById("step-start");
-        const currentStep = document.getElementById("step-current");
-        const endStep = document.getElementById("step-end");
-
-        const start = new Date(d.date);
-        const now = new Date();
-
-        const totalTime = 7 * 24 * 60 * 60 * 1000;
-        const passed = now - start;
-
-        let progress = (passed / totalTime) * 100;
-
-        if (progress < 30) {
-          startStep.classList.add("active");
-          currentStep.innerText = "Début";
-        } else if (progress < 100) {
-          startStep.classList.add("active");
-          currentStep.classList.add("active");
-          currentStep.innerText = "En cours";
-        } else {
-          startStep.classList.add("active");
-          currentStep.classList.add("active");
-          endStep.classList.add("active");
-          currentStep.innerText = "Terminée";
-        }
-
-      })
-      .catch(() => {
-        document.getElementById("title").innerText = "Erreur chargement";
-      });
-  </script>
+  <script src="js/app.js"></script>
+  <script src="js/details.js"></script>
 
 </body>
 </html>
+

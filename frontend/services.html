@@ -3,19 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
+  <title>Services - SafeHaven</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <header class="navbar">
     <div class="container navbar-inner">
-      <a class="logo" href="#" aria-label="Accueil SafeHaven">
-        <span class="logo-mark">S</span>
-        <span class="logo-text">
-          <strong>SafeHaven</strong>
-          <small>Protection et réponse</small>
-        </span>
-      </a>
+      <a class="logo" href="index.html" aria-label="Accueil SafeHaven">SafeHaven</a>
 
       <button class="menu-btn" type="button" aria-controls="primary-navigation" aria-expanded="false" aria-label="Ouvrir le menu">
         <span></span>
@@ -24,47 +18,66 @@
       </button>
 
       <nav class="nav" id="primary-navigation" aria-label="Menu principal">
-        <a class="nav-link active" href="#" aria-current="page">Accueil</a>
-        <!-- <a class="nav-link" href="#">Services</a> -->
-        <a class="nav-link" href="#">Signalements</a>
-        <a class="nav-link" href="#">Contact</a>
-        <a href="" class="nav-secondary">profile</a>
-        <!-- <a class="nav-secondary" href="#">Se connecter</a> -->
-        <!-- <a class="nav-primary add-disaster-toggle" href="#add-disaster">Ajouter un signalement</a> -->
+        <a class="nav-link" href="index.html">Accueil</a>
+        <a class="nav-link" href="signalements.html">Signalements</a>
+        <a class="nav-link" href="contac.html">Contact</a>
       </nav>
     </div>
   </header>
 
+  <main class="container">
+    <section class="hero" style="margin-top: 24px;">
+      <div class="hero-text">
+        <p class="hero-kicker">Services</p>
+        <h1>Suivi clair des incidents</h1>
+        <p class="hero-desc">Centralisez les signalements, consultez les cartes et gardez un œil rapide sur les événements importants.</p>
+      </div>
 
+      <div class="hero-image">
+        <img src="assets/disaster-illustration.svg" alt="Illustration de catastrophe">
+      </div>
+    </section>
 
+    <section class="stats" style="margin-top: 24px;">
+      <div class="stat">
+        <h3>Carte</h3>
+        <span>1</span>
+      </div>
+      <div class="stat">
+        <h3>Alertes</h3>
+        <span>24/7</span>
+      </div>
+      <div class="stat">
+        <h3>Accès</h3>
+        <span>Rapide</span>
+      </div>
+    </section>
+  </main>
 
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <h2>SafeHaven</h2>
+        <p>Un espace simple pour suivre les catastrophes.</p>
+      </div>
 
+      <div class="footer-links">
+        <h3>Liens rapides</h3>
+        <a href="index.html">Accueil</a>
+        <a href="services.html">Services</a>
+      </div>
 
-  
-<footer class="footer">
-  <div class="container footer-inner">
-    <div class="footer-brand">
-      <h2>SafeHaven</h2>
-      <p>Un espace simple pour suivre les catastrophes.</p>
+      <div class="footer-contact">
+        <h3>Contact</h3>
+        <p>contact@safehaven.ma</p>
+      </div>
     </div>
 
-    <div class="footer-links">
-      <h3>Liens rapides</h3>
-      <a href="index.html">Accueil</a>
-      <a href="#">Services</a>
+    <div class="container footer-bottom">
+      <span>2026 SafeHaven</span>
     </div>
+  </footer>
 
-    <div class="footer-contact">
-      <h3>Contact</h3>
-      <p>contact@safehaven.ma</p>
-    </div>
-  </div>
-
-  <div class="container footer-bottom">
-    <span>2026 SafeHaven</span>
-  </div>
-</footer>
-<script src="js/app.js"></script>
-
+  <script src="js/app.js"></script>
 </body>
 </html>

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Catastrophe;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http;
+use Throwable;
+use Twilio\Rest\Client;
 
 class CatastropheController extends Controller
 {
@@ -46,6 +48,7 @@ class CatastropheController extends Controller
         ]);
 
         $catastrophe = Catastrophe::create($validated);
+        $this->sendSmsNotification($catastrophe, $request->user());
 
         return response()->json([
             'message' => 'Catastrophe created successfully',
@@ -113,5 +116,74 @@ class CatastropheController extends Controller
         }
 
         return null;
+    }
+
+    private function sendSmsNotification(Catastrophe $catastrophe, ?User $user = null): void
+    {
+        $sid = config('services.twilio.sid');
+        $token = config('services.twilio.token');
+        $from = $this->normalizePhoneNumber(config('services.twilio.from'));
+        $recipient = $this->normalizePhoneNumber($user?->phone ?: config('services.twilio.to'));
+
+        if (!$sid || !$token || !$from || !$recipient) {
+            Log::info('SMS skipped: missing Twilio settings or phone number.', [
+                'catastrophe_id' => $catastrophe->id,
+                'user_id' => $user?->id,
+            ]);
+
+            return;
+        }
+
+        try {
+            $client = new Client($sid, $token);
+            $message = sprintf(
+                'Nouvelle catastrophe: %s. Zone: %s. Date: %s. Statut: %s. Severite: %s.',
+                $catastrophe->title,
+                $catastrophe->description ?? 'Non precisee',
+                $catastrophe->date,
+                $catastrophe->status,
+                $catastrophe->severity
+            );
+
+            $client->messages->create($recipient, [
+                'from' => $from,
+                'body' => $message,
+            ]);
+        } catch (Throwable $e) {
+            Log::warning('SMS notification failed.', [
+                'catastrophe_id' => $catastrophe->id,
+                'user_id' => $user?->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    private function normalizePhoneNumber(?string $phone)
+    {
+        $phone = trim((string) $phone);
+
+        if ($phone === '') {
+            return null;
+        }
+
+        $phone = preg_replace('/[\s\-\.\(\)]/', '', $phone);
+
+        if (str_starts_with($phone, '+')) {
+            return $phone;
+        }
+
+        if (str_starts_with($phone, '00')) {
+            return '+' . substr($phone, 2);
+        }
+
+        if (preg_match('/^0[5-7]\d{8}$/', $phone)) {
+            return '+212' . substr($phone, 1);
+        }
+
+        if (preg_match('/^212[5-7]\d{8}$/', $phone)) {
+            return '+' . $phone;
+        }
+
+        return $phone;
     }
 }

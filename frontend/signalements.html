@@ -3,135 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - SafeHaven</title>
+  <title>Signalements - SafeHaven</title>
   <link rel="stylesheet" href="css/style.css">
-  <style>
-    main.container {
-      padding: 80px 10%;
-      background-color: #f4f5f9;
-      min-height: calc(100vh - 400px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .auth-card {
-      background: #ffffff;
-      border: 1px solid #d1d6e6;
-      border-radius: 2px;
-      width: 100%;
-      max-width: 450px;
-      padding: 40px;
-    }
-
-    .auth-card h2 {
-      font-size: 24px;
-      font-weight: 700;
-      color: #121c2d;
-      margin-bottom: 30px;
-      text-align: center;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .form-group label {
-      font-size: 13px;
-      font-weight: 700;
-      color: #606b85;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .form-group input {
-      height: 48px;
-      padding: 0 16px;
-      border: 1px solid #d1d6e6;
-      border-radius: 2px;
-      font-size: 14px;
-      color: #121c2d;
-      transition: border-color 0.2s;
-    }
-
-    .form-group input:focus {
-      outline: none;
-      border-color: #001489;
-      box-shadow: 0 0 0 2px rgba(0, 20, 137, 0.1);
-    }
-
-    .auth-btn {
-      width: 100%;
-      height: 48px;
-      background-color: #f22f46;
-      color: #ffffff;
-      border: none;
-      border-radius: 2px;
-      font-size: 14px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    .auth-footer {
-      margin-top: 25px;
-      text-align: center;
-      font-size: 14px;
-      color: #606b85;
-    }
-
-    .auth-footer a {
-      color: #001489;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    @media (max-width: 600px) {
-      main.container { padding: 40px 20px; }
-      .auth-card { padding: 25px; }
-    }
-  </style>
 </head>
 <body>
-
   <header class="navbar">
     <div class="container navbar-inner">
-      <a class="logo" href="index.html">
-        <span class="logo-mark">S</span>
-        <span class="logo-text">
-          <strong>SafeHaven</strong>
-          <small>Protection et réponse</small>
-        </span>
-      </a>
+      <a class="logo" href="index.html" aria-label="Accueil SafeHaven">SafeHaven</a>
 
-      <button class="menu-btn" type="button">
+      <button class="menu-btn" type="button" aria-controls="primary-navigation" aria-expanded="false" aria-label="Ouvrir le menu">
         <span></span>
         <span></span>
         <span></span>
       </button>
 
-        <nav class="nav" id="primary-navigation" aria-label="Menu principal">
-        <a class="nav-link active" href="index.html" aria-current="page">Accueil</a>
-        <a class="nav-link" href="signalements.html">Signalements</a>
+      <nav class="nav" id="primary-navigation" aria-label="Menu principal">
+        <a class="nav-link" href="index.html">Accueil</a>
+        <a class="nav-link active" href="signalements.html" aria-current="page">Signalements</a>
         <a class="nav-link" href="contac.html">Contact</a>
-        <button  style="color: violet;" class="nav-secondary" id="logoutBtn" type="button">Logout</button>
-        <a  class="nav-link" href="profile.html">  Profile </a>
-        <a class="nav-primary add-disaster-toggle" href="#add-disaster">Ajouter un signalement</a>
+        <button class="nav-secondary" id="logoutBtn" type="button">Déconnexion</button>
+        <a class="nav-link" href="profile.html">Profil</a>
+        <a class="nav-primary add-disaster-toggle" href="index.html#add-disaster">Ajouter un signalement</a>
       </nav>
     </div>
   </header>
 
-  <div  style="margin-top: 100px;"> </div>
-   <div class="table-wrap">
-        <div id="cards-container" class="cards"></div>
+  <main class="container records-page">
+    <section class="records-section">
+      <div class="disasters-head">
+        <h1>Registre des signalements</h1>
+        <span id="recordsCount">0 entrées</span>
       </div>
 
-    
+      <p class="records-note">
+        Consultation des signalements enregistrés dans la plateforme.
+      </p>
+
+      <div class="disasters-tools">
+        <input type="text" placeholder="Rechercher par titre, zone ou date..." class="search">
+        <select class="filter">
+          <option value="all">Toutes les situations</option>
+          <option value="critical">Critiques</option>
+          <option value="progress">En cours</option>
+          <option value="high">Élevées</option>
+        </select>
+      </div>
+
+      <div class="cards-wrap">
+        <div id="cards-container" class="cards"></div>
+        <p id="recordsEmpty" class="empty-state hidden" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
 
   <footer class="footer">
     <div class="container footer-inner">
@@ -143,7 +66,7 @@
       <div class="footer-links">
         <h3>Liens rapides</h3>
         <a href="index.html">Accueil</a>
-        <a href="signalements.html">Signalements</a>
+        <a href="services.html">Services</a>
       </div>
 
       <div class="footer-contact">

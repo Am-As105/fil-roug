@@ -124,7 +124,8 @@ main.container {
   color: #f22f46;
 }
 
-#map {
+#map,
+#detail-map {
   height: 450px;
   width: 100%;
   border: 1px solid #d1d6e6;
@@ -170,31 +171,147 @@ main.container {
     padding: 20px;
   }
 }
-
 .timeline {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  border-left: 3px solid #ccc;
-  padding-left: 15px;
+  justify-content: space-between;
+  margin-top: 20px;
+  position: relative;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #ddd;
+  z-index: 0;
 }
 
 .step {
+  background: #eee;
+  padding: 10px 15px;
+  border-radius: 20px;
+  z-index: 1;
   position: relative;
-  padding: 5px 10px;
+  font-weight: bold;
+  color: #777;
 }
 
-.step::before {
-  content: "";
-  width: 10px;
-  height: 10px;
-  background: gray;
-  border-radius: 50%;
+.step.active {
+  background: #ff3b3b;
+  color: white;
+}
+
+
+
+.tracking-box {
+  background: #ffffff;
+  border: 1px solid #d1d6e6;
+  border-radius: 2px;
+  padding: 30px;
+  margin: 30px 0;
+}
+
+.tracking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.live-indicator {
+  font-size: 10px;
+  font-weight: 800;
+  color: #f22f46;
+  border: 1px solid #f22f46;
+  padding: 2px 8px;
+  border-radius: 2px;
+  letter-spacing: 1px;
+}
+
+.timeline-container {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: 50px;
+  padding: 0 20px;
+}
+
+.timeline-line {
   position: absolute;
-  left: -19px;
-  top: 8px;
+  top: 10px;
+  left: 40px;
+  right: 40px;
+  height: 2px;
+  background: #d1d6e6;
+  z-index: 1;
 }
 
-.step.active::before {
-  background: green;
+.timeline-step {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.step-dot {
+  width: 20px;
+  height: 20px;
+  background: #ffffff;
+  border: 2px solid #d1d6e6;
+  border-radius: 50%;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+}
+
+.timeline-step.active .step-dot {
+  background: #f22f46;
+  border-color: #f22f46;
+  box-shadow: 0 0 0 4px rgba(242, 47, 70, 0.2);
+}
+
+.step-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #606b85;
+  letter-spacing: 0.5px;
+}
+
+.step-status {
+  font-size: 14px;
+  color: #121c2d;
+  font-weight: 600;
+}
+
+.timeline-step.active .step-label {
+  color: #121c2d;
+}
+
+.chart-wrapper {
+  padding-top: 30px;
+  border-top: 1px solid #f4f5f9;
+}
+
+@media (max-width: 600px) {
+  .timeline-container {
+    flex-direction: column;
+    gap: 30px;
+    padding-left: 10px;
+  }
+  .timeline-line {
+    width: 2px;
+    height: 80%;
+    left: 19px;
+    top: 10px;
+  }
+  .timeline-step {
+    flex-direction: row;
+    gap: 20px;
+    align-items: flex-start;
+  }
 }

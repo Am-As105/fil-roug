@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catastrophes</title>
+  <title>Catastrophes - SafeHaven</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -11,12 +11,7 @@
 <body>
   <header class="navbar">
     <div class="container navbar-inner">
-      <a class="logo" href="index.html" aria-label="Accueil SafeHaven">
-        <span class="logo-mark">S</span>
-        <span class="logo-text">
-          <strong>SafeHaven</strong>
-        </span>
-      </a> 
+      <a class="logo" href="index.html" aria-label="Accueil SafeHaven">SafeHaven</a>
 
       <button class="menu-btn" type="button" aria-controls="primary-navigation" aria-expanded="false" aria-label="Ouvrir le menu">
         <span></span>
@@ -28,9 +23,9 @@
         <a class="nav-link active" href="index.html" aria-current="page">Accueil</a>
         <a class="nav-link" href="signalements.html">Signalements</a>
         <a class="nav-link" href="contac.html">Contact</a>
-        <button  style="color: violet;" class="nav-secondary" id="logoutBtn" type="button">Logout</button>
-        <a  class="nav-link" href="profile.html">  Profile </a>
-        <a class="nav-primary add-disaster-toggle" href="#add-disaster">Ajouter un signalement</a>
+        <button class="nav-secondary" id="logoutBtn" type="button">Déconnexion</button>
+        <a class="nav-link" href="profile.html">Profil</a>
+        <a class="nav-primary add-disaster-toggle" href="index.html#add-disaster">Ajouter un signalement</a>
       </nav>
     </div>
   </header>
@@ -41,36 +36,28 @@
         <p class="hero-kicker">Alerte en direct</p>
         <h1>Lecture rapide des risques</h1>
         <p class="hero-desc">Surveillez les incidents, les zones critiques et l'état global en un coup d'œil.</p>
-
-        <!-- <div class="hero-stats">
-          <p class="hero-stat"><strong>7</strong> signalements récents</p>
-          <p class="hero-stat"><strong>2</strong> zones critiques</p>
-          <p class="hero-stat"><strong>24/7</strong> suivi continu</p>
-        </div> -->
       </div>
 
       <div class="hero-image">
-        <img src="" alt="Illustration de catastrophe">
+        <img src="assets/disaster-illustration.svg" alt="Illustration de catastrophe">
       </div>
     </section>
 
     <section class="stats">
-      <div class="stats">
-  <div class="stat">
-    <h3>Total</h3>
-    <span id="totalCount">0</span>
-  </div>
+      <div class="stat">
+        <h3>Total</h3>
+        <span id="totalCount">0</span>
+      </div>
 
-  <div class="stat">
-    <h3>Critiques</h3>
-    <span id="criticalCount">0</span>
-  </div>
+      <div class="stat">
+        <h3>Critiques</h3>
+        <span id="criticalCount">0</span>
+      </div>
 
-  <div class="stat">
-    <h3>En cours</h3>
-    <span id="progressCount">0</span>
-  </div>
-</div>
+      <div class="stat">
+        <h3>En cours</h3>
+        <span id="progressCount">0</span>
+      </div>
     </section>
 
     <section class="map-section">
@@ -84,31 +71,30 @@
 
     <section class="disasters">
       <div class="disasters-head">
-        <h2>Liste des catastrophes</h2>
-        <span>4 entrées</span>
+        <h2>Registre des signalements</h2>
+        <span id="recordsCount">0 entrées</span>
       </div>
 
       <div class="disasters-tools">
-        <input type="text" placeholder="Rechercher..." class="search">
+        <input type="text" placeholder="Rechercher par titre, zone ou date..." class="search">
         <select class="filter">
-          <option>Toutes</option>
-          <option>Critique</option>
-          <option>En cours</option>
-          <option>Élevée</option>
+          <option value="all">Toutes les situations</option>
+          <option value="critical">Critiques</option>
+          <option value="progress">En cours</option>
+          <option value="high">Élevées</option>
         </select>
       </div>
 
-      <div class="table-wrap">
+      <div class="cards-wrap">
         <div id="cards-container" class="cards"></div>
+        <p id="recordsEmpty" class="empty-state hidden" aria-live="polite"></p>
       </div>
     </section>
 
     <section class="add-disaster is-hidden" id="add-disaster">
       <div class="form-head">
         <h2>Ajouter une catastrophe</h2>
-        <p>Remplissez les champs ci-dessous pour enregistrer un nouveau signalement.</p>
       </div>
-
       <p id="msg" class="msg" aria-live="polite"></p>
       <form id="disasterForm" class="disaster-form">
         <div class="form-grid">
@@ -141,11 +127,12 @@
 
           <div class="field">
             <label>Sévérité</label>
-    <select name="severity" id="severitySelect">
-      <option value="low">Low</option>
-    <option value="medium">Medium</option>
-    <option value="high">High</option>
-   </select>          </div>
+            <select name="severity" id="severitySelect">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
 
           <div class="field">
             <label>Status</label>
@@ -157,27 +144,27 @@
           </div>
 
           <div class="field">
-  <label>Type de catastrophe</label>
-  <select name="type_id" id="typeSelect" required>
-    <option>Chargement...</option>
-  </select>
-</div>
+            <label>Type de catastrophe</label>
+            <select name="type_id" id="typeSelect" required>
+              <option>Chargement...</option>
+            </select>
+          </div>
         </div>
 
         <div class="field">
-  <label>Victimes</label>
-  <input type="number" name="victims" placeholder="Nombre de victimes">
-</div>
+          <label>Victimes</label>
+          <input type="number" name="victims" placeholder="Nombre de victimes">
+        </div>
 
-<div class="field">
-  <label>Blessés</label>
-  <input type="number" name="injured" placeholder="Nombre de blessés">
-</div>
+        <div class="field">
+          <label>Blessés</label>
+          <input type="number" name="injured" placeholder="Nombre de blessés">
+        </div>
 
-<div class="field">
-  <label>Dégâts (DH)</label>
-  <input type="number" name="damage" placeholder="Montant ">
-</div>
+        <div class="field">
+          <label>Dégâts (DH)</label>
+          <input type="number" name="damage" placeholder="Montant">
+        </div>
 
         <div class="form-actions">
           <button type="submit" class="form-submit">Ajouter</button>

@@ -17,11 +17,20 @@ fetch("https://countriesnow.space/api/v0.1/countries/cities", {
   data.data.forEach(city => {
     citySelect.innerHTML += `<option value="${city}">${city}</option>`;
   });
+})
+.catch(() => {
+  if (citySelect) {
+    citySelect.innerHTML = "<option>Error</option>";
+  }
 });
 
 if (form && id) {
   fetch(API + "/catastrophes/" + id)
-    .then(res => res.json())
+    .then(async (res) => {
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || "Error loading catastrophe");
+      return data;
+    })
     .then(d => {
       form.title.value = d.title || "";
       citySelect.value = d.description || "";
@@ -35,6 +44,9 @@ if (form && id) {
       form.victims.value = d.victims || 0;
       form.injured.value = d.injured || 0;
       form.damage.value = d.damage || 0;
+    })
+    .catch(() => {
+      alert("Error loading catastrophe");
     });
 
   form.addEventListener("submit", function (e) {
@@ -59,6 +71,11 @@ if (form && id) {
         injured: this.injured.value,
         damage: this.damage.value
       })
+    })
+    .then(async (res) => {
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || "Error");
+      return data;
     })
     .then(() => {
       alert("Updated successfully");

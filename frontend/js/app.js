@@ -1,352 +1,291 @@
 const API_BASE_URL = "https://savehaven.aminearar.com/api";
-
-const token = localStorage.getItem("token");
+const token = localStorage.getItem("token") || "";
 const role = localStorage.getItem("role") || "";
-const isAdmin = role === "admin";
-
+const isLoggedIn = Boolean(token);
+const isAdmin = isLoggedIn && role === "admin";
+const navbar = document.querySelector(".navbar");
+const menuBtn = document.querySelector(".menu-btn");
 const addBtn = document.querySelector(".add-disaster-toggle");
-const form = document.getElementById("add-disaster");
+const addSection = document.getElementById("add-disaster");
+const cardsContainer = document.getElementById("cards-container");
+const searchInput = document.querySelector(".search");
+const filterSelect = document.querySelector(".filter");
+const recordsCount = document.getElementById("recordsCount");
+const recordsEmpty = document.getElementById("recordsEmpty");
+const totalCount = document.getElementById("totalCount");
+const criticalCount = document.getElementById("criticalCount");
+const progressCount = document.getElementById("progressCount");
+const disasterForm = document.getElementById("disasterForm");
+const formMessage = document.getElementById("msg");
+const citySelect = document.getElementById("citySelect");
+const typeSelect = document.getElementById("typeSelect");
+const registerForm = document.getElementById("registerForm");
+const registerMessage = document.getElementById("message");
+const loginForm = document.getElementById("loginForm");
+const loginMessage = document.getElementById("loginMessage");
+const logoutBtn = document.getElementById("logoutBtn");
+const mapElement = document.getElementById("map");
+let markersLayer = null;
 
-if (!isAdmin) {
-  if (addBtn) addBtn.style.display = "none";
-  if (form) form.style.display = "none";
-}
-
+// Small helpers
 function escapeHtml(value = "") {
-  return String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+  return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
-
-function normalizeKey(value = "") {
-  return String(value)
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "");
+function cleanText(value = "") {
+  return String(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
-
-function getStatusVariant(status = "") {
-  const key = normalizeKey(status);
-
-  if (key === "critique" || key === "critical") return "critical";
-  if (key === "encours" || key === "inprogress") return "progress";
-  if (key === "elevee" || key === "high") return "high";
-
+function getStatusClass(status = "") {
+  const value = cleanText(status);
+  if (value.includes("crit")) return "critical";
+  if (value.includes("encours") || value.includes("progress")) return "progress";
+  if (value.includes("elevee") || value.includes("high")) return "high";
   return "neutral";
 }
-
 async function requestJson(url, options = {}) {
   const response = await fetch(url, options);
   const data = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    throw new Error(data.message || "Erreur");
-  }
-
+  if (!response.ok) throw new Error(data.message || "Erreur");
   return data;
 }
-
-const navbar = document.querySelector(".navbar");
-const menuBtn = document.querySelector(".menu-btn");
-
-if (navbar && menuBtn) {
-  menuBtn.addEventListener("click", () => {
-    navbar.classList.toggle("is-open");
-  });
+function updateStats(total, critical, progress) {
+  if (totalCount) totalCount.innerText = total;
+  if (criticalCount) criticalCount.innerText = critical;
+  if (progressCount) progressCount.innerText = progress;
+  if (recordsCount) recordsCount.innerText = `${total} entrée${total === 1 ? "" : "s"}`;
+}
+function toggleEmpty(show, text = "") {
+  if (!recordsEmpty) return;
+  recordsEmpty.innerText = show ? text : "";
+  recordsEmpty.classList.toggle("hidden", !show);
+}
+function setMessage(element, text, color) {
+  if (!element) return;
+  element.innerText = text;
+  element.style.color = color;
+}
+function openAddForm() {
+  if (!addSection) return;
+  addSection.classList.remove("is-hidden");
+  addSection.scrollIntoView({ behavior: "smooth", block: "start" });
+  const field = addSection.querySelector("input, select, textarea, button");
+  if (field && typeof field.focus === "function") field.focus({ preventScroll: true });
 }
 
-const addDisasterLinks = document.querySelectorAll(".add-disaster-toggle");
-const addDisasterSection = document.getElementById("add-disaster");
-
-if (!token) {
+// Header and access
+if (navbar && menuBtn) {
+  menuBtn.addEventListener("click", () => {
+    const isOpen = navbar.classList.toggle("is-open");
+    menuBtn.setAttribute("aria-expanded", String(isOpen));
+  });
+}
+if (!isLoggedIn) {
   document.querySelectorAll(".nav-primary, #logoutBtn").forEach(el => {
     el.style.display = "none";
   });
 }
-
-if (addDisasterLinks.length && addDisasterSection) {
-  addDisasterLinks.forEach(link => {
-    link.addEventListener("click", e => {
-      e.preventDefault();
-      addDisasterSection.classList.toggle("is-hidden");
-    });
-  });
+if (!isAdmin) {
+  if (addBtn) addBtn.style.display = "none";
+  if (addSection) addSection.style.display = "none";
 }
-
-const cardsContainer = document.getElementById("cards-container");
-
-if (cardsContainer) {
-  const options = token
-    ? { headers: { Authorization: "Bearer " + token } }
-    : {};
-
-  requestJson(API_BASE_URL + "/catastrophes", options)
-    .then(data => {
-      const list = Array.isArray(data) ? data : data.data || [];
-
-      let total = 0;
-      let critical = 0;
-      let progress = 0;
-
-      cardsContainer.innerHTML = "";
-
-      list.forEach(d => {
-        total++;
-
-        const statusKey = normalizeKey(d.status);
-
-        if (statusKey === "critique") critical++;
-        if (statusKey === "encours" || statusKey === "progress") progress++;
-
-        const status = getStatusVariant(d.status);
-
-        cardsContainer.innerHTML += `
-  <div class="card">
-    <div class="card-image">
-      <img src="${d.image_url || 'assets/placeholder.jpg'}" alt="${escapeHtml(d.title)}">
-    </div>
-    <div class="card-content">
-      <span class="badge ${status}">${escapeHtml(d.status)}</span>
-      <h3>${escapeHtml(d.title)}</h3>
-      <p>${escapeHtml(d.description)}</p>
-      <p><strong>Date:</strong> ${escapeHtml(d.date)}</p>
-      
-      <div class="card-actions">
-        <a href="details.html?id=${d.id}" class="btn-details">View Details →</a>
-        ${isAdmin ? `<button class="btn-delete" onclick="deleteDisaster(${d.id})">Delete</button>` : ""}
-        ${isAdmin ? `<a href="edit.html?id=${d.id}" class="btn-edit">Edit</a>` : ""}
-      </div>
-    </div>
-  </div>
-`;
-      });
-
-      const totalEl = document.getElementById("totalCount");
-      const criticalEl = document.getElementById("criticalCount");
-      const progressEl = document.getElementById("progressCount");
-
-      if (totalEl) totalEl.innerText = total;
-      if (criticalEl) criticalEl.innerText = critical;
-      if (progressEl) progressEl.innerText = progress;
-    })
-    .catch(err => {
-      console.log(err);
-      cardsContainer.innerHTML = "Erreur chargement";
-    });
-}
-
-const disasterForm = document.getElementById("disasterForm");
-
-if (disasterForm) {
-  disasterForm.addEventListener("submit", function(e) {
+if (addBtn && addSection) {
+  addBtn.addEventListener("click", e => {
     e.preventDefault();
-
-    fetch(API_BASE_URL + "/catastrophes", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + token
-      },
-      body: JSON.stringify({
-        title: this.title.value,
-        description: this.description.value,
-        latitude: this.latitude.value,
-        longitude: this.longitude.value,
-        date: this.date.value,
-        severity: this.severity.value,
-        status: this.status.value,
-        type_id: this.type_id.value,
-        victims: this.victims.value,
-      injured: this.injured.value,
-      damage: this.damage.value
-        
-      })
-    })
-    .then(res => res.json())
-    .then(() => location.reload())
-    .catch(() => alert("Erreur"));
+    openAddForm();
   });
 }
-
-function deleteDisaster(id) {
-  fetch(API_BASE_URL + "/catastrophes/" + id, {
-    method: "DELETE",
-    headers: {
-      Authorization: "Bearer " + token
-    }
-  })
-  .then(() => location.reload())
-  .catch(() => alert("Error"));
+if (addSection && isAdmin && window.location.hash === "#add-disaster") {
+  requestAnimationFrame(openAddForm);
 }
 
-const citySelect = document.getElementById("citySelect");
+// Cards
+function renderCard(disaster) {
+  const title = escapeHtml(disaster.title || "Signalement");
+  const description = escapeHtml(disaster.description || "Zone non précisée");
+  const date = escapeHtml(disaster.date || "Date inconnue");
+  const severity = escapeHtml(disaster.severity || "Non précisée");
+  const statusText = escapeHtml(disaster.status || "Inconnu");
+  const statusClass = getStatusClass(disaster.status);
+  const imageUrl = escapeHtml(disaster.image_url || "assets/disaster-illustration.svg");
+  return `<article class="card" data-status="${statusClass}"><div class="card-image"><img src="${imageUrl}" alt="${title}"></div><div class="card-content"><div class="card-head"><span class="badge ${statusClass}">${statusText}</span><span class="card-date">${date}</span></div><p class="card-label">Zone signalée</p><h3>${title}</h3><p class="card-summary">${description}</p><div class="card-meta"><div class="card-meta-item"><span>Sévérité</span><strong>${severity}</strong></div><div class="card-meta-item"><span>Date</span><strong>${date}</strong></div></div><div class="card-actions"><a href="details.html?id=${disaster.id}" class="btn-details">Voir les détails</a>${isAdmin ? `<a href="edit.html?id=${disaster.id}" class="btn-edit">Modifier</a>` : ""}${isAdmin ? `<button class="btn-delete" onclick="deleteDisaster(${disaster.id})" type="button">Supprimer</button>` : ""}</div></div></article>`;
+}
+function renderMarkers(list) {
+  if (!markersLayer) return;
+  markersLayer.clearLayers();
+  list.forEach(disaster => {
+    const lat = parseFloat(disaster.latitude);
+    const lng = parseFloat(disaster.longitude);
+    if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+      L.marker([lat, lng]).addTo(markersLayer).bindPopup(`<b>${escapeHtml(disaster.title || "")}</b><br>${escapeHtml(disaster.description || "")}`);
+    }
+  });
+}
+function applyFilters() {
+  if (!cardsContainer) return;
+  const cards = cardsContainer.querySelectorAll(".card");
+  if (!cards.length) return;
+  const query = cleanText(searchInput ? searchInput.value : "");
+  const selected = cleanText(filterSelect ? filterSelect.value : "all");
+  let visibleCount = 0;
+  cards.forEach(card => {
+    const text = cleanText(card.textContent);
+    const status = card.dataset.status || "neutral";
+    const visible = (!query || text.includes(query)) && (selected === "all" || selected === "toutes" || status === selected);
+    card.hidden = !visible;
+    if (visible) visibleCount++;
+  });
+  if (visibleCount === 0) toggleEmpty(true, "Aucun résultat ne correspond aux critères.");
+  else toggleEmpty(false);
+}
+function renderDisasters(list) {
+  if (!cardsContainer) return;
+  if (!list.length) {
+    cardsContainer.innerHTML = "";
+    updateStats(0, 0, 0);
+    toggleEmpty(true, "Aucun signalement disponible pour le moment.");
+    renderMarkers([]);
+    return;
+  }
+  let critical = 0;
+  let progress = 0;
+  list.forEach(disaster => {
+    const status = getStatusClass(disaster.status);
+    if (status === "critical") critical++;
+    if (status === "progress") progress++;
+  });
+  cardsContainer.innerHTML = list.map(renderCard).join("");
+  updateStats(list.length, critical, progress);
+  toggleEmpty(false);
+  renderMarkers(list);
+  applyFilters();
+}
+async function loadDisasters() {
+  if (!cardsContainer) return;
+  try {
+    const data = await requestJson(`${API_BASE_URL}/catastrophes`, isLoggedIn ? { headers: { Authorization: `Bearer ${token}` } } : {});
+    renderDisasters(Array.isArray(data) ? data : data.data || []);
+  } catch (error) {
+    console.error(error);
+    cardsContainer.innerHTML = "";
+    updateStats(0, 0, 0);
+    toggleEmpty(true, "Erreur de chargement des signalements.");
+  }
+}
+if (searchInput && cardsContainer) searchInput.addEventListener("input", applyFilters);
+if (filterSelect && cardsContainer) filterSelect.addEventListener("change", applyFilters);
 
-if (citySelect) {
-  fetch("https://countriesnow.space/api/v0.1/countries/cities", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      country: "Morocco"
-    })
-  })
-  .then(res => res.json())
-  .then(data => {
-    citySelect.innerHTML = "";
-
-    if (data.data) {
-      data.data.forEach(city => {
-        citySelect.innerHTML += `<option value="${city}">${city}</option>`;
+// Form
+if (disasterForm) {
+  disasterForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    setMessage(formMessage, "Envoi...", "blue");
+    try {
+      const response = await fetch(`${API_BASE_URL}/catastrophes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          title: this.title.value,
+          description: this.description.value,
+          latitude: this.latitude.value,
+          longitude: this.longitude.value,
+          date: this.date.value,
+          severity: this.severity.value,
+          status: this.status.value,
+          type_id: this.type_id.value,
+          victims: this.victims.value,
+          injured: this.injured.value,
+          damage: this.damage.value
+        })
       });
+      if (!response.ok) throw new Error();
+      setMessage(formMessage, "Catastrophe ajoutée avec succès", "green");
+      this.reset();
+      setTimeout(() => location.reload(), 800);
+    } catch (error) {
+      setMessage(formMessage, "Erreur lors de l'ajout", "red");
     }
-  })
-  .catch(err => {
-    console.log(err);
-    citySelect.innerHTML = "<option>Error</option>";
   });
 }
+function deleteDisaster(id) {
+  fetch(`${API_BASE_URL}/catastrophes/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } })
+    .then(res => {
+      if (!res.ok) throw new Error();
+      location.reload();
+    })
+    .catch(() => alert("Erreur suppression"));
+}
+window.deleteDisaster = deleteDisaster;
 
-const searchInput = document.querySelector(".search");
-
-if (searchInput && cardsContainer) {
-  searchInput.addEventListener("input", function () {
-    const value = this.value.toLowerCase();
-    const cards = document.querySelectorAll(".card");
-
-    cards.forEach(card => {
-      const text = card.innerText.toLowerCase();
-      card.style.display = text.includes(value) ? "block" : "none";
-    });
-  });
+// Lookup data
+async function loadCities() {
+  if (!citySelect) return;
+  try {
+    const response = await fetch("https://countriesnow.space/api/v0.1/countries/cities", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ country: "Morocco" }) });
+    const data = await response.json();
+    const cities = data.data || [];
+    citySelect.innerHTML = cities.length ? cities.map(city => `<option value="${escapeHtml(city)}">${escapeHtml(city)}</option>`).join("") : "<option value=\"\">Aucune ville</option>";
+  } catch (error) {
+    citySelect.innerHTML = "<option value=\"\">Erreur de chargement</option>";
+  }
+}
+async function loadTypes() {
+  if (!typeSelect) return;
+  try {
+    const data = await requestJson(`${API_BASE_URL}/types`);
+    const types = Array.isArray(data) ? data : data.data || [];
+    typeSelect.innerHTML = types.length ? types.map(type => `<option value="${type.id}">${escapeHtml(type.name)}</option>`).join("") : "<option value=\"\">Aucun type</option>";
+  } catch (error) {
+    typeSelect.innerHTML = "<option value=\"\">Erreur de chargement</option>";
+  }
 }
 
-const filter = document.querySelector(".filter");
-
-if (filter && cardsContainer) {
-  filter.addEventListener("change", function () {
-    const value = this.value.toLowerCase();
-    const cards = document.querySelectorAll(".card");
-
-    cards.forEach(card => {
-      const text = card.innerText.toLowerCase();
-
-      if (value === "toutes") {
-        card.style.display = "block";
-      } else {
-        card.style.display = text.includes(value) ? "block" : "none";
-      }
-    });
-  });
-}
-
-const registerForm = document.getElementById("registerForm");
-const registerMessage = document.getElementById("message");
 
 if (registerForm) {
-  registerForm.addEventListener("submit", function (e) {
+  registerForm.addEventListener("submit", async function (e) {
     e.preventDefault();
-
-    fetch(API_BASE_URL + "/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: this.nom.value,
-        email: this.email.value,
-        telephone: this.telephone.value,
-        adress: this.adress.value,
-        password: this.password.value
-      })
-    })
-    .then(res => res.json())
-    .then(() => {
-      registerMessage.innerText = "Compte créé avec succès";
-      registerMessage.style.color = "green";
+    try {
+      const response = await fetch(`${API_BASE_URL}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: this.nom.value,
+          email: this.email.value,
+          telephone: this.telephone.value,
+          adress: this.adress.value,
+          password: this.password.value
+        })
+      });
+      if (!response.ok) throw new Error();
+      setMessage(registerMessage, "Compte créé avec succès", "green");
       registerForm.reset();
-      setTimeout(() => {
-        window.location.href = "login.html";
-      }, 1000);
-    })
-    .catch(() => {
-      registerMessage.innerText = "Erreur inscription";
-      registerMessage.style.color = "red";
-    });
+      setTimeout(() => { window.location.href = "login.html"; }, 1000);
+    } catch (error) {
+      setMessage(registerMessage, "Erreur inscription", "red");
+    }
   });
 }
-
-const loginForm = document.getElementById("loginForm");
-const loginMessage = document.getElementById("loginMessage");
-
 if (loginForm) {
-  loginForm.addEventListener("submit", function (e) {
+  loginForm.addEventListener("submit", async function (e) {
     e.preventDefault();
-
-    fetch(API_BASE_URL + "/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        email: this.email.value,
-        password: this.password.value
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (!data.token) throw new Error();
-
+    try {
+      const response = await fetch(`${API_BASE_URL}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: this.email.value,
+          password: this.password.value
+        })
+      });
+      const data = await response.json();
+      if (!response.ok || !data.token) throw new Error();
       localStorage.setItem("token", data.token);
       if (data.role) localStorage.setItem("role", data.role);
-
-      loginMessage.innerText = "Connexion réussie";
-      loginMessage.style.color = "green";
-
-      setTimeout(() => {
-        window.location.href = "index.html";
-      }, 800);
-    })
-    .catch(() => {
-      loginMessage.innerText = "Email ou mot de passe incorrect";
-      loginMessage.style.color = "red";
-    });
+      setMessage(loginMessage, "Connexion réussie", "green");
+      setTimeout(() => { window.location.href = "index.html"; }, 800);
+    } catch (error) {
+      setMessage(loginMessage, "Email ou mot de passe incorrect", "red");
+    }
   });
 }
-
-const mapElement = document.getElementById("map");
-
-if (mapElement && typeof L !== "undefined") {
-  const map = L.map("map").setView([31.7917, -7.0926], 6);
-
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
-    .addTo(map);
-
-  fetch(API_BASE_URL + "/catastrophes")
-    .then(res => res.json())
-    .then(data => {
-      const list = Array.isArray(data) ? data : data.data || [];
-
-      list.forEach(d => {
-        const lat = parseFloat(d.latitude);
-        const lng = parseFloat(d.longitude);
-
-        if (!isNaN(lat) && !isNaN(lng)) {
-          L.marker([lat, lng])
-            .addTo(map)
-            .bindPopup(`<b>${d.title}</b><br>${d.description}`);
-        }
-      });
-    })
-    .catch(() => {
-      console.log("Error loading disasters");
-    });
-}
-
-const logoutBtn = document.getElementById("logoutBtn");
-
 if (logoutBtn) {
   logoutBtn.addEventListener("click", () => {
     localStorage.removeItem("token");
@@ -356,47 +295,12 @@ if (logoutBtn) {
 }
 
 
-
-const typeSelect = document.getElementById("typeSelect");
-
-if (typeSelect) {
-  fetch(API_BASE_URL + "/types")
-    .then(res => res.json())
-    .then(types => {
-      typeSelect.innerHTML = "";
-
-      types.forEach(t => {
-        typeSelect.innerHTML += `
-          <option value="${t.id}">${t.name}</option>
-        `;
-      });
-    })
-    .catch(() => {
-      typeSelect.innerHTML = "<option>Erreur chargement</option>";
-    });
+if (mapElement && typeof L !== "undefined") {
+  const map = L.map("map").setView([31.7917, -7.0926], 6);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+  markersLayer = L.layerGroup().addTo(map);
 }
 
-
-
-navigator.geolocation.getCurrentPosition((pos) => {
-  const userLat = pos.coords.latitude;
-  const userLng = pos.coords.longitude;
-
-  fetch(API_BASE_URL + "/catastrophes")
-    .then(res => res.json())
-    .then(data => {
-      const list = Array.isArray(data) ? data : data.data || [];
-
-      list.forEach(d => {
-        const lat = parseFloat(d.latitude);
-        const lng = parseFloat(d.longitude);
-
-        if (
-          Math.abs(userLat - lat) < 0.1 &&
-          Math.abs(userLng - lng) < 0.1
-        ) {
-          alert("⚠️ Catastrophe proche !");
-        }
-      });
-    });
-});
+loadCities(); 
+loadTypes();
+loadDisasters();
