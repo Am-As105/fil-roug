@@ -27,7 +27,7 @@ const logoutBtn = document.getElementById("logoutBtn");
 const mapElement = document.getElementById("map");
 let markersLayer = null;
 
-// Small helpers
+
 function escapeHtml(value = "") {
   return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
@@ -71,7 +71,7 @@ function openAddForm() {
   if (field && typeof field.focus === "function") field.focus({ preventScroll: true });
 }
 
-// Header and access
+
 if (navbar && menuBtn) {
   menuBtn.addEventListener("click", () => {
     const isOpen = navbar.classList.toggle("is-open");
@@ -83,21 +83,24 @@ if (!isLoggedIn) {
     el.style.display = "none";
   });
 }
+
 if (!isAdmin) {
   if (addBtn) addBtn.style.display = "none";
   if (addSection) addSection.style.display = "none";
 }
+
 if (addBtn && addSection) {
   addBtn.addEventListener("click", e => {
     e.preventDefault();
     openAddForm();
   });
 }
+
 if (addSection && isAdmin && window.location.hash === "#add-disaster") {
   requestAnimationFrame(openAddForm);
 }
 
-// Cards
+//
 function renderCard(disaster) {
   const title = escapeHtml(disaster.title || "Signalement");
   const description = escapeHtml(disaster.description || "Zone non précisée");
@@ -108,8 +111,13 @@ function renderCard(disaster) {
   const imageUrl = escapeHtml(disaster.image_url || "assets/disaster-illustration.svg");
   return `<article class="card" data-status="${statusClass}"><div class="card-image"><img src="${imageUrl}" alt="${title}"></div><div class="card-content"><div class="card-head"><span class="badge ${statusClass}">${statusText}</span><span class="card-date">${date}</span></div><p class="card-label">Zone signalée</p><h3>${title}</h3><p class="card-summary">${description}</p><div class="card-meta"><div class="card-meta-item"><span>Sévérité</span><strong>${severity}</strong></div><div class="card-meta-item"><span>Date</span><strong>${date}</strong></div></div><div class="card-actions"><a href="details.html?id=${disaster.id}" class="btn-details">Voir les détails</a>${isAdmin ? `<a href="edit.html?id=${disaster.id}" class="btn-edit">Modifier</a>` : ""}${isAdmin ? `<button class="btn-delete" onclick="deleteDisaster(${disaster.id})" type="button">Supprimer</button>` : ""}</div></div></article>`;
 }
-function renderMarkers(list) {
-  if (!markersLayer) return;
+
+
+function renderMarkers(list)
+ {
+  if (!markersLayer)   // مكينش ماب
+    return;
+
   markersLayer.clearLayers();
   list.forEach(disaster => {
     const lat = parseFloat(disaster.latitude);
@@ -119,45 +127,92 @@ function renderMarkers(list) {
     }
   });
 }
+
+
+
 function applyFilters() {
-  if (!cardsContainer) return;
-  const cards = cardsContainer.querySelectorAll(".card");
-  if (!cards.length) return;
-  const query = cleanText(searchInput ? searchInput.value : "");
-  const selected = cleanText(filterSelect ? filterSelect.value : "all");
-  let visibleCount = 0;
+  const cards = document.querySelectorAll(".card");
+
+  const query = searchInput.value.toLowerCase();
+  const selected = filterSelect.value;
+
+  let found = false;
+
   cards.forEach(card => {
-    const text = cleanText(card.textContent);
-    const status = card.dataset.status || "neutral";
-    const visible = (!query || text.includes(query)) && (selected === "all" || selected === "toutes" || status === selected);
-    card.hidden = !visible;
-    if (visible) visibleCount++;
+    const text = card.textContent.toLowerCase();
+    const status = card.dataset.status;
+
+    if (
+      (text.includes(query) || query === "") &&
+      (selected === "all" || status === selected)
+    ) {
+      card.style.display = "block";
+      found = true;
+    } else {
+      card.style.display = "none";
+    }
   });
-  if (visibleCount === 0) toggleEmpty(true, "Aucun résultat ne correspond aux critères.");
-  else toggleEmpty(false);
+
+  if (!found) {
+    recordsEmpty.innerText = "not found ";
+  } else {
+    recordsEmpty.innerText = "";
+  }
 }
+
+
+// function renderDisasters(list) {
+//   if (!cardsContainer) return;
+//   if (!list.length) {
+//     cardsContainer.innerHTML = "";
+//     updateStats(0, 0, 0);
+//     toggleEmpty(true, "Aucun signalement disponible pour le moment.");
+//     renderMarkers([]);
+//     return;
+//   }
+//   let critical = 0;
+//   let progress = 0;
+//   list.forEach(disaster => {
+//     const status = getStatusClass(disaster.status);
+//     if (status === "critical") critical++;
+//     if (status === "progress") progress++;
+//   });
+//   cardsContainer.innerHTML = list.map(renderCard).join("");
+//   updateStats(list.length, critical, progress);
+//   toggleEmpty(false);
+//   renderMarkers(list);
+//   applyFilters();
+// }
+
 function renderDisasters(list) {
   if (!cardsContainer) return;
-  if (!list.length) {
-    cardsContainer.innerHTML = "";
+
+  if (!list || list.length === 0) {
+    cardsContainer.innerHTML = "No disasters found";
     updateStats(0, 0, 0);
-    toggleEmpty(true, "Aucun signalement disponible pour le moment.");
     renderMarkers([]);
     return;
   }
+
   let critical = 0;
   let progress = 0;
-  list.forEach(disaster => {
-    const status = getStatusClass(disaster.status);
+
+  list.forEach(d => 
+  {
+    const status = getStatusClass(d.status);
     if (status === "critical") critical++;
     if (status === "progress") progress++;
   });
+
   cardsContainer.innerHTML = list.map(renderCard).join("");
+
   updateStats(list.length, critical, progress);
-  toggleEmpty(false);
+
   renderMarkers(list);
   applyFilters();
 }
+
+
 async function loadDisasters() {
   if (!cardsContainer) return;
   try {
@@ -196,7 +251,12 @@ if (disasterForm) {
           damage: this.damage.value
         })
       });
-      if (!response.ok) throw new Error();
+     const data = await response.json().catch(() => ({}));
+
+if (!response.ok){
+  console.error(data);
+  throw new Error(data.message || "Erreur");
+}
       setMessage(formMessage, "Catastrophe ajoutée avec succès", "green");
       this.reset();
       setTimeout(() => location.reload(), 800);
@@ -241,8 +301,8 @@ async function loadTypes() {
 
 if (registerForm) {
   registerForm.addEventListener("submit", async function (e) {
-    e.preventDefault();
-    try {
+    e.preventDefault(); 
+    try { 
       const response = await fetch(`${API_BASE_URL}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -252,7 +312,7 @@ if (registerForm) {
           telephone: this.telephone.value,
           adress: this.adress.value,
           password: this.password.value
-        })
+        }) 
       });
       if (!response.ok) throw new Error();
       setMessage(registerMessage, "Compte créé avec succès", "green");

@@ -21,167 +21,153 @@ function getDetailsStatusVariant(status = "") {
   return "muted";
 }
 
-function setDetailsText(elementId, value) {
-  const element = document.getElementById(elementId);
-
-  if (element) {
-    element.innerText = value;
-  }
+function setDetailsText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.innerText = value;
 }
 
 function updateDetailsTimeline(status) {
   const key = normalizeDetailsKey(status);
-  const startStep = document.getElementById("step-start");
-  const currentStep = document.getElementById("step-current");
-  const endStep = document.getElementById("step-end");
+  const steps = ["step-start", "step-current", "step-end"];
 
-  [startStep, currentStep, endStep].forEach(el => el && el.classList.remove("active"));
+  steps.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove("active");
+  });
 
-  if (startStep) startStep.classList.add("active");
+  document.getElementById("step-start")?.classList.add("active");
 
-  if (currentStep && [
-    "encours",
-    "inprogress",
-    "progress",
-    "elevee",
-    "high",
-    "critique",
-    "critical"
-  ].includes(key)) {
-    currentStep.classList.add("active");
+  if (["encours","progress","high","critique","critical"].includes(key)) {
+    document.getElementById("step-current")?.classList.add("active");
   }
 
-  if (endStep && ["termine", "terminee", "resolved", "completed"].includes(key)) {
-    if (currentStep) currentStep.classList.add("active");
-    endStep.classList.add("active");
+  if (["termine","terminee","resolved"].includes(key)) {
+    document.getElementById("step-current")?.classList.add("active");
+    document.getElementById("step-end")?.classList.add("active");
   }
 }
 
 function updateDetailsProgress(status) {
-  const progressBar = document.getElementById("progressBar");
-  const progressText = document.getElementById("progressText");
   const key = normalizeDetailsKey(status);
+  const bar = document.getElementById("progressBar");
+  const text = document.getElementById("progressText");
 
   let percent = 33;
-  let label = "Signalement recu";
+  let label = "Signalement reçu";
 
-  if (["encours", "inprogress", "progress", "elevee", "high", "critique", "critical"].includes(key)) {
+  if (["encours","progress","high","critique","critical"].includes(key)) {
     percent = 66;
     label = "Incident en cours";
   }
 
-  if (["termine", "terminee", "resolved", "completed"].includes(key)) {
+  if (["termine","terminee","resolved"].includes(key)) {
     percent = 100;
-    label = "Incident termine";
+    label = "Incident terminé";
   }
 
-  if (progressBar) {
-    const container = progressBar.parentElement;
+  if (bar) {
+    const container = bar.parentElement;
+    container.style.height = "10px";
+    container.style.background = "#ddd";
+    container.style.borderRadius = "999px";
+    container.style.overflow = "hidden";
 
-    if (container) {
-      container.style.height = "10px";
-      container.style.background = "#d1d6e6";
-      container.style.borderRadius = "999px";
-      container.style.overflow = "hidden";
-      container.style.marginBottom = "16px";
-    }
-
-    progressBar.style.display = "block";
-    progressBar.style.height = "100%";
-    progressBar.style.width = `${percent}%`;
-    progressBar.style.background = "#f22f46";
+    bar.style.width = percent + "%";
+    bar.style.height = "100%";
+    bar.style.background = "#f22f46";
   }
 
-  if (progressText) {
-    progressText.innerText = label;
-  }
+  if (text) text.innerText = label;
 }
 
 function renderDetailsMap(disaster) {
-  const mapContainer = document.getElementById("detail-map");
-
-  if (!mapContainer || typeof L === "undefined") {
-    return;
-  }
+  const mapEl = document.getElementById("detail-map");
+  if (!mapEl || typeof L === "undefined") return;
 
   const lat = parseFloat(disaster.latitude);
   const lng = parseFloat(disaster.longitude);
+  if (isNaN(lat) || isNaN(lng)) return;
 
-  if (Number.isNaN(lat) || Number.isNaN(lng)) {
-    return;
+  if (window.detailsMap) {
+    window.detailsMap.remove();
   }
 
-  const map = L.map("detail-map").setView([lat, lng], 14);
+  window.detailsMap = L.map("detail-map").setView([lat, lng], 14);
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap"
-  }).addTo(map);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(window.detailsMap);
+
+  const severity = normalizeDetailsKey(disaster.severity);
+
+  let color = "green";
+  let radius = 800;
+
+  if (severity === "critique") {
+    color = "red";
+    radius = 2000;
+  } else if (severity === "high") {
+    color = "orange";
+    radius = 1500;
+  } else if (severity === "medium") {
+    color = "yellow";
+    radius = 1200;
+  }
 
   L.marker([lat, lng])
-    .addTo(map)
-    .bindPopup(disaster.title || "")
+    .addTo(window.detailsMap)
+    .bindPopup(`
+      <strong>${disaster.title}</strong><br>
+      Gravité: ${disaster.severity}<br>
+      Statut: ${disaster.status}
+    `)
     .openPopup();
 
-  let radius = 500;
-  const severityKey = normalizeDetailsKey(disaster.severity);
-
-  if (severityKey === "high" || severityKey === "critique") radius = 2000;
-  else if (severityKey === "medium" || severityKey === "elevee") radius = 1200;
-  else if (severityKey === "low" || severityKey === "moyenne") radius = 800;
-
   L.circle([lat, lng], {
-    color: "red",
-    fillColor: "#f03",
+    color,
+    fillColor: color,
     fillOpacity: 0.3,
     radius
-  }).addTo(map);
+  }).addTo(window.detailsMap);
 }
 
-function renderDetailsDisaster(disaster) {
-  setDetailsText("title", disaster.title || "");
-  setDetailsText("desc", disaster.description || "");
-  setDetailsText("date", disaster.date || "");
-  setDetailsText("severity", disaster.severity || "");
-  setDetailsText("lat", disaster.latitude ?? "");
-  setDetailsText("lng", disaster.longitude ?? "");
-  setDetailsText("victims", disaster.victims ?? 0);
-  setDetailsText("injured", disaster.injured ?? 0);
-  setDetailsText("damage", `${Number(disaster.damage ?? 0).toLocaleString()} DH`);
+function renderDetailsDisaster(d) {
+  setDetailsText("title", d.title || "Non défini");
+  setDetailsText("desc", d.description || "Non précisé");
+  setDetailsText("date", d.date || "-");
+  setDetailsText("severity", d.severity || "-");
+  setDetailsText("lat", d.latitude || "-");
+  setDetailsText("lng", d.longitude || "-");
+  setDetailsText("victims", d.victims ?? 0);
+  setDetailsText("injured", d.injured ?? 0);
+
+  const damage = Number(d.damage || 0);
+  setDetailsText("damage", damage ? damage.toLocaleString() + " DH" : "Non précisé");
 
   const statusEl = document.getElementById("status");
-
   if (statusEl) {
-    statusEl.className = `status-badge status-${getDetailsStatusVariant(disaster.status)}`;
-    statusEl.innerText = disaster.status || "";
+    statusEl.className = "status-badge status-" + getDetailsStatusVariant(d.status);
+    statusEl.innerText = d.status || "-";
   }
 
-  updateDetailsTimeline(disaster.status);
-  updateDetailsProgress(disaster.status);
-  renderDetailsMap(disaster);
+  updateDetailsTimeline(d.status);
+  updateDetailsProgress(d.status);
+  renderDetailsMap(d);
 }
 
 function showDetailsError() {
-  setDetailsText("title", "Erreur chargement");
-  setDetailsText("progressText", "");
+  setDetailsText("title", "Erreur de chargement");
+  setDetailsText("desc", "Impossible de récupérer les données");
 }
 
 if (!detailsId) {
   showDetailsError();
 } else {
-  const headers = detailsToken ? { Authorization: `Bearer ${detailsToken}` } : {};
-
-  fetch(`${DETAILS_API_BASE_URL}/catastrophes/${detailsId}`, { headers })
-    .then(async response => {
-      const data = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(data.message || "Error loading catastrophe");
-      }
-
-      return data;
+  fetch(`${DETAILS_API_BASE_URL}/catastrophes/${detailsId}`, {
+    headers: detailsToken ? { Authorization: `Bearer ${detailsToken}` } : {}
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (!data) throw new Error();
+      renderDetailsDisaster(data.data || data);
     })
-    .then(renderDetailsDisaster)
-    .catch(() => {
-      showDetailsError();
-    });
+    .catch(showDetailsError);
 }

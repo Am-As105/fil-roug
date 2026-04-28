@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DÃ©tails catastrophe - SafeHaven</title>
+  <title>Détails catastrophe - SafeHaven</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/details.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -12,9 +12,14 @@
 
   <header class="navbar">
     <div class="container navbar-inner">
-      <a class="logo" href="index.html" aria-label="Accueil SafeHaven">SafeHaven</a>
+      <a class="logo" href="index.html">
+        <span class="logo-mark">S</span>
+        <span class="logo-text">
+          <strong>afeHaven</strong>
+        </span>
+      </a>
 
-      <button class="menu-btn" type="button" aria-controls="primary-navigation" aria-expanded="false" aria-label="Ouvrir le menu">
+      <button class="menu-btn" type="button">
         <span></span>
         <span></span>
         <span></span>
@@ -24,8 +29,8 @@
         <a class="nav-link active" href="index.html" aria-current="page">Accueil</a>
         <a class="nav-link" href="signalements.html">Signalements</a>
         <a class="nav-link" href="contac.html">Contact</a>
-        <button class="nav-secondary" id="logoutBtn" type="button">Déconnexion</button>
-        <a class="nav-link" href="profile.html">Profil</a>
+        <button class="nav-secondary" id="logoutBtn" type="button">Logout</button>
+        <a class="nav-link" href="profile.html">Profile</a>
       </nav>
     </div>
   </header>
@@ -51,7 +56,7 @@
         </div>
 
         <div class="info-box">
-          <h3>CoordonnÃ©es</h3>
+          <h3>Coordonnées</h3>
           <p><strong>Latitude:</strong> <span id="lat"></span></p>
           <p><strong>Longitude:</strong> <span id="lng"></span></p>
         </div>
@@ -59,16 +64,16 @@
         <div class="info-box">
           <h3>Impact</h3>
           <p><strong>Victimes:</strong> <span id="victims"></span></p>
-          <p><strong>BlessÃ©s:</strong> <span id="injured"></span></p>
-          <p><strong>DÃ©gÃ¢ts:</strong> <span id="damage"></span></p>
+          <p><strong>Blessés:</strong> <span id="injured"></span></p>
+          <p><strong>Dégâts:</strong> <span id="damage"></span></p>
         </div>
       </div>
 
       <div class="tracking-box">
         <div class="timeline">
-          <div class="step" id="step-start">DÃ©but</div>
+          <div class="step" id="step-start">Début</div>
           <div class="step" id="step-current">En cours</div>
-          <div class="step" id="step-end">TerminÃ©e</div>
+          <div class="step" id="step-end">Terminée</div>
         </div>
       </div>
 
@@ -86,4 +91,3 @@
 
 </body>
 </html>
-
