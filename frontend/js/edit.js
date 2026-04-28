@@ -5,6 +5,9 @@ const token = localStorage.getItem("token");
 
 const form = document.getElementById("editForm");
 const citySelect = document.getElementById("citySelect");
+const typeSelect = document.getElementById("typeSelect");
+
+let selectedCity = "";
 
 fetch("https://countriesnow.space/api/v0.1/countries/cities", {
   method: "POST",
@@ -14,31 +17,57 @@ fetch("https://countriesnow.space/api/v0.1/countries/cities", {
 .then(res => res.json())
 .then(data => {
   citySelect.innerHTML = "";
-  data.data.forEach(city => {
+  (data.data || []).forEach(city => {
     citySelect.innerHTML += `<option value="${city}">${city}</option>`;
   });
+  if (selectedCity) citySelect.value = selectedCity;
 })
 .catch(() => {
-  if (citySelect) {
-    citySelect.innerHTML = "<option>Error</option>";
-  }
+  if (citySelect) citySelect.innerHTML = "<option>Error</option>";
 });
+
+if (typeSelect) {
+  fetch(API + "/types", {
+    headers: { "Authorization": "Bearer " + token }
+  })
+  .then(res => res.json())
+  .then(data => {
+    const types = data.data || data;
+    typeSelect.innerHTML = "";
+    types.forEach(t => {
+      typeSelect.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+    });
+  })
+  .catch(() => {
+    typeSelect.innerHTML = "<option>Error</option>";
+  });
+}
 
 if (form && id) {
   fetch(API + "/catastrophes/" + id)
     .then(async (res) => {
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.message || "Error loading catastrophe");
+      if (!res.ok) throw new Error();
       return data;
     })
-    .then(d => {
+    .then(res => {
+      const d = res.data || res;
+
       form.title.value = d.title || "";
-      citySelect.value = d.description || "";
+      selectedCity = d.description || "";
       form.date.value = d.date || "";
       form.latitude.value = d.latitude || "";
       form.longitude.value = d.longitude || "";
       form.severity.value = d.severity || "low";
-      form.status.value = d.status || "";
+
+      const status = (d.status || "").toLowerCase();
+      if (status.includes("en cours")) {
+        form.status.value = "progress";
+      } else if (status.includes("crit")) {
+        form.status.value = "critical";
+      } else if (status.includes("elevee") || status.includes("élevée")) {
+        form.status.value = "high";
+      }
 
       form.type_id.value = d.type_id || "";
       form.victims.value = d.victims || 0;
@@ -74,7 +103,7 @@ if (form && id) {
     })
     .then(async (res) => {
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.message || "Error");
+      if (!res.ok) throw new Error();
       return data;
     })
     .then(() => {
@@ -82,30 +111,5 @@ if (form && id) {
       window.location.href = "index.html";
     })
     .catch(() => alert("Error"));
-  });
-}
-
-const typeSelect = document.getElementById("typeSelect");
-
-if (typeSelect) {
-  const token = localStorage.getItem("token");
-
-  fetch(API + "/types", {
-    headers: {
-      "Authorization": "Bearer " + token
-    }
-  })
-  .then(res => res.json())
-  .then(types => {
-    typeSelect.innerHTML = "";
-
-    types.forEach(t => {
-      typeSelect.innerHTML += `
-        <option value="${t.id}">${t.name}</option>
-      `;
-    });
-  })
-  .catch(() => {
-    typeSelect.innerHTML = "<option>Error</option>";
   });
 }
