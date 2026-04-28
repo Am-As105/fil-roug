@@ -22,7 +22,7 @@ class CatastropheController extends Controller
     {
         $catastrophe = Catastrophe::with('type')->find($id);
 
-        if (!$catastrophe) {
+        if (!$catastrophe){
             return response()->json([
                 'success' => false,
                 'message' => 'Not found'
