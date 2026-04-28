@@ -72,12 +72,12 @@ function openAddForm() {
 }
 
 
-if (navbar && menuBtn) {
-  menuBtn.addEventListener("click", () => {
-    const isOpen = navbar.classList.toggle("is-open");
-    menuBtn.setAttribute("aria-expanded", String(isOpen));
-  });
-}
+// if (navbar && menuBtn) {
+//   menuBtn.addEventListener("click", () => {
+//     const isOpen = navbar.classList.toggle("is-open");
+//     menuBtn.setAttribute("aria-expanded", String(isOpen));
+//   });
+// }
 if (!isLoggedIn) {
   document.querySelectorAll(".nav-primary, #logoutBtn").forEach(el => {
     el.style.display = "none";
@@ -108,8 +108,7 @@ function renderCard(disaster) {
   const severity = escapeHtml(disaster.severity || "Non précisée");
   const statusText = escapeHtml(disaster.status || "Inconnu");
   const statusClass = getStatusClass(disaster.status);
-  const imageUrl = escapeHtml(disaster.image_url || "assets/disaster-illustration.svg");
-  return `<article class="card" data-status="${statusClass}"><div class="card-image"><img src="${imageUrl}" alt="${title}"></div><div class="card-content"><div class="card-head"><span class="badge ${statusClass}">${statusText}</span><span class="card-date">${date}</span></div><p class="card-label">Zone signalée</p><h3>${title}</h3><p class="card-summary">${description}</p><div class="card-meta"><div class="card-meta-item"><span>Sévérité</span><strong>${severity}</strong></div><div class="card-meta-item"><span>Date</span><strong>${date}</strong></div></div><div class="card-actions"><a href="details.html?id=${disaster.id}" class="btn-details">Voir les détails</a>${isAdmin ? `<a href="edit.html?id=${disaster.id}" class="btn-edit">Modifier</a>` : ""}${isAdmin ? `<button class="btn-delete" onclick="deleteDisaster(${disaster.id})" type="button">Supprimer</button>` : ""}</div></div></article>`;
+const imageUrl = escapeHtml(disaster.image_url || "img/wp2381593-natural-disasters-wallpapers.jpg");  return `<article class="card" data-status="${statusClass}"><div class="card-image"><img src="${imageUrl}" alt="${title}"></div><div class="card-content"><div class="card-head"><span class="badge ${statusClass}">${statusText}</span><span class="card-date">${date}</span></div><p class="card-label">Zone signalée</p><h3>${title}</h3><p class="card-summary">${description}</p><div class="card-meta"><div class="card-meta-item"><span>Sévérité</span><strong>${severity}</strong></div><div class="card-meta-item"><span>Date</span><strong>${date}</strong></div></div><div class="card-actions"><a href="details.html?id=${disaster.id}" class="btn-details">Voir les détails</a>${isAdmin ? `<a href="edit.html?id=${disaster.id}" class="btn-edit">Modifier</a>` : ""}${isAdmin ? `<button class="btn-delete" onclick="deleteDisaster(${disaster.id})" type="button">Supprimer</button>` : ""}</div></div></article>`;
 }
 
 
@@ -204,8 +203,7 @@ function renderDisasters(list) {
     if (status === "progress") progress++;
   });
 
-  cardsContainer.innerHTML = list.map(renderCard).join("");
-
+cardsContainer.innerHTML = list.slice().reverse().map(renderCard).join("");
   updateStats(list.length, critical, progress);
 
   renderMarkers(list);
@@ -213,11 +211,20 @@ function renderDisasters(list) {
 }
 
 
+
 async function loadDisasters() {
   if (!cardsContainer) return;
   try {
     const data = await requestJson(`${API_BASE_URL}/catastrophes`, isLoggedIn ? { headers: { Authorization: `Bearer ${token}` } } : {});
-    renderDisasters(Array.isArray(data) ? data : data.data || []);
+    const list = Array.isArray(data) ? data : data.data || [];
+
+renderDisasters(list);
+
+if (list.length > 0) {
+  const last = list[list.length - 1];
+  renderLiveAlert(last);
+}
+
   } catch (error) {
     console.error(error);
     cardsContainer.innerHTML = "";
@@ -228,7 +235,7 @@ async function loadDisasters() {
 if (searchInput && cardsContainer) searchInput.addEventListener("input", applyFilters);
 if (filterSelect && cardsContainer) filterSelect.addEventListener("change", applyFilters);
 
-// Form
+
 if (disasterForm) {
   disasterForm.addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -265,6 +272,8 @@ if (!response.ok){
     }
   });
 }
+
+
 function deleteDisaster(id) {
   fetch(`${API_BASE_URL}/catastrophes/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } })
     .then(res => {
@@ -364,3 +373,45 @@ if (mapElement && typeof L !== "undefined") {
 loadCities(); 
 loadTypes();
 loadDisasters();
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  const menuBtn = document.querySelector(".menu-btn");
+  const nav = document.querySelector(".nav");
+
+  if (!menuBtn || !nav) return;
+
+  menuBtn.addEventListener("click", function () {
+    nav.classList.toggle("is-open");
+
+    const spans = menuBtn.querySelectorAll("span");
+
+    if (nav.classList.contains("is-open")) {
+      spans[0].style.transform = "rotate(45deg) translate(5px, 5px)";
+      spans[1].style.opacity = "0";
+      spans[2].style.transform = "rotate(-45deg) translate(7px, -8px)";
+    } else {
+      spans[0].style.transform = "none";
+      spans[1].style.opacity = "1";
+      spans[2].style.transform = "none";
+    }
+  });
+
+});
+
+
+const liveList = document.getElementById("liveList");
+
+function renderLiveAlert(disaster) {
+  if (!liveList || !disaster) return;
+
+  const title = disaster.title || "Alert";
+  const time = disaster.date || "";
+
+  liveList.innerHTML = `
+    <div class="live-item">
+      <span class="dot"></span>
+      <p>${title} - ${time}</p>
+    </div>
+  `;
+}

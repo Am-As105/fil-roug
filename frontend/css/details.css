@@ -1,4 +1,4 @@
-main.container {
+/* main.container {
   display: flex;
   flex-direction: column;
   max-width: 100%;
@@ -314,4 +314,127 @@ main.container {
     gap: 20px;
     align-items: flex-start;
   }
+} */
+
+:root {
+    --primary: #8b2ff5;
+    --base-bg: #0a0a0c;
+    --base-surface: #121217;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --text-main: #ffffff;
+    --text-muted: #8a8a93;
+}
+
+.details-card {
+    background: var(--base-surface);
+    border: 1px solid var(--border-subtle);
+    padding: 2.5rem;
+    margin-top: 100px;
+    border-radius: 0; 
+}
+
+.details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 1rem;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    border-radius: 0;
+}
+
+.life-container {
+    width: 100%;
+    height: 10px;
+    background: #1a1a21;
+    margin-bottom: 1rem;
+    border-radius: 0;
+}
+
+#progressBar {
+    height: 100%;
+    background: var(--primary);
+    width: 0%;
+    transition: width 1s ease-in-out;
+    border-radius: 0;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.info-box {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 1.5rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: 0;
+}
+
+.info-box h3 {
+    color: var(--primary);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+}
+
+.info-box p {
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.tracking-box {
+    margin: 2rem 0;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 0;
+}
+
+.timeline {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+}
+
+.step {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    position: relative;
+    z-index: 2;
+}
+
+.step.active {
+    color: var(--primary);
+}
+
+#detail-map {
+    margin-top: 2rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: 0;
+}
+
+.btn {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background: var(--primary);
+    color: white;
+    text-decoration: none;
+    font-weight: 700;
+    border-radius: 0;
+    transition: background 0.3s;
+}
+
+.btn:hover {
+    background: var(--primary-hover);
 }

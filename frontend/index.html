@@ -11,19 +11,19 @@
 <body>
   <header class="navbar">
     <div class="container navbar-inner">
-      <a class="logo" href="index.html" aria-label="Accueil SafeHaven">SafeHaven</a>
+      <a class="logo" href="index.html">SafeHaven</a>
 
-      <button class="menu-btn" type="button" aria-controls="primary-navigation" aria-expanded="false" aria-label="Ouvrir le menu">
+      <button class="menu-btn" type="button">
         <span></span>
         <span></span>
         <span></span>
       </button>
 
-      <nav class="nav" id="primary-navigation" aria-label="Menu principal">
-        <a class="nav-link active" href="index.html" aria-current="page">Accueil</a>
+      <nav class="nav">
+        <a class="nav-link active" href="index.html">Accueil</a>
         <a class="nav-link" href="signalements.html">Signalements</a>
         <a class="nav-link" href="contac.html">Contact</a>
-        <button class="nav-secondary" id="logoutBtn" type="button">Déconnexion</button>
+        <button class="nav-secondary" id="logoutBtn">Déconnexion</button>
         <a class="nav-link" href="profile.html">Profil</a>
         <a class="nav-primary add-disaster-toggle" href="index.html#add-disaster">Ajouter un signalement</a>
       </nav>
@@ -39,7 +39,7 @@
       </div>
 
       <div class="hero-image">
-        <img src="img/wolfgang_hasselmann-camels-4134934_1920.jpg" alt="Illustration de catastrophe">
+        <img src="img/wp2381593-natural-disasters-wallpapers.jpg">
       </div>
     </section>
 
@@ -48,24 +48,35 @@
         <h3>Total</h3>
         <span id="totalCount">0</span>
       </div>
-
       <div class="stat">
         <h3>Critiques</h3>
         <span id="criticalCount">0</span>
       </div>
-
       <div class="stat">
         <h3>En cours</h3>
         <span id="progressCount">0</span>
       </div>
     </section>
 
+    <section class="live-alerts">
+  <div class="live-head">
+    <h2>Live Alerts</h2>
+    <span>Now</span>
+  </div>
+
+  <div class="live-list" id="liveList"></div>
+   
+
+   
+    
+  </div>
+</section>
+
     <section class="map-section">
       <div class="map-head">
         <h2>Carte des catastrophes</h2>
         <span>Vue simple</span>
       </div>
-
       <div id="map"></div>
     </section>
 
@@ -87,7 +98,7 @@
 
       <div class="cards-wrap">
         <div id="cards-container" class="cards"></div>
-        <p id="recordsEmpty" class="empty-state hidden" aria-live="polite"></p>
+        <p id="recordsEmpty" class="empty-state hidden"></p>
       </div>
     </section>
 
@@ -95,7 +106,7 @@
       <div class="form-head">
         <h2>Ajouter une catastrophe</h2>
       </div>
-      <p id="msg" class="msg" aria-live="polite"></p>
+      <p id="msg" class="msg"></p>
       <form id="disasterForm" class="disaster-form">
         <div class="form-grid">
           <div class="field">
@@ -153,17 +164,17 @@
 
         <div class="field">
           <label>Victimes</label>
-          <input type="number" name="victims" placeholder="Nombre de victimes">
+          <input type="number" name="victims">
         </div>
 
         <div class="field">
           <label>Blessés</label>
-          <input type="number" name="injured" placeholder="Nombre de blessés">
+          <input type="number" name="injured">
         </div>
 
         <div class="field">
           <label>Dégâts (DH)</label>
-          <input type="number" name="damage" placeholder="Montant">
+          <input type="number" name="damage">
         </div>
 
         <div class="form-actions">
@@ -187,7 +198,7 @@
       </div>
 
       <div class="footer-contact">
-        <h3>Contact</h3>
+        <h3>Contact</h3> 
         <p>contact@safehaven.ma</p>
       </div>
     </div>
