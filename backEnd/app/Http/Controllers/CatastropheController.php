@@ -56,13 +56,29 @@ class CatastropheController extends Controller
 
             try {
                 $users = User::whereNotNull('email')->get();
-
                 foreach ($users as $user) {
-                    Mail::raw("Nouvelle catastrophe: {$catastrophe->title}", function ($message) use ($user) {
-                        $message->to($user->email)
-                                ->subject("Nouvelle Catastrophe");
-                    });
-                }
+    Mail::html("
+        <h2>Nouvelle catastrophe</h2>
+        <p><strong>Titre:</strong> {$catastrophe->title}</p>
+        <p><strong>Description:</strong> {$catastrophe->description}</p>
+        <p><strong>Date:</strong> {$catastrophe->date}</p>
+        <p><strong>Gravité:</strong> {$catastrophe->severity}</p>
+        <p><strong>Status:</strong> {$catastrophe->status}</p>
+        <p><strong>Latitude:</strong> {$catastrophe->latitude}</p>
+        <p><strong>Longitude:</strong> {$catastrophe->longitude}</p>
+        <p><strong>Victimes:</strong> {$catastrophe->victims}</p>
+        <p><strong>Blessés:</strong> {$catastrophe->injured}</p>
+        <p><strong>Dégâts:</strong> {$catastrophe->damage} DH</p>
+        <br>
+        <a href='https://savehaven.aminearar.com/details.html?id={$catastrophe->id}'>
+            Voir plus de détails
+        </a>
+    ", function ($message) use ($user) {
+        $message->to($user->email)
+                ->subject("Nouvelle Catastrophe");
+    });
+}
+
             } catch (\Exception $e) {
                 Log::error("Email failed: " . $e->getMessage());
             }
