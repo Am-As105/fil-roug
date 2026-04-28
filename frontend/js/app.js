@@ -37,7 +37,7 @@ function cleanText(value = "") {
 function getStatusClass(status = "") {
   const value = cleanText(status);
   if (value.includes("crit")) return "critical";
-  if (value.includes("encours") || value.includes("progress")) return "progress";
+  if (value.includes("en cours") || value.includes("progress")) return "progress";
   if (value.includes("elevee") || value.includes("high")) return "high";
   return "neutral";
 }
@@ -115,7 +115,7 @@ function renderCard(disaster) {
 
 function renderMarkers(list)
  {
-  if (!markersLayer)   // مكينش ماب
+  if (!markersLayer) 
     return;
 
   markersLayer.clearLayers();
