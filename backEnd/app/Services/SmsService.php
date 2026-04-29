@@ -19,7 +19,9 @@ class SmsService
                         ["to" => $phone]
                     ],
                     "from" => "ServiceSMS",
-                    "text" => $message
+                    "content" => [
+                        "text" => $message
+                    ]
                 ]
             ]
         ]);
