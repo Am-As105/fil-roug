@@ -83,20 +83,29 @@ class CatastropheController extends Controller
                 Log::error($e->getMessage());
             }
 
-            try {
-                $sms = new SmsService();
-                $usersPhone = User::whereNotNull('telephone')->get();
+           try {
+    $sms = new SmsService();
 
-                foreach ($usersPhone as $user) {
-                    $sms->send(
-                        $user->telephone,
-                        "Nouvelle catastrophe: {$catastrophe->title}"
-                    );
-                }
-            } catch (\Exception $e) {
-                Log::error($e->getMessage());
-            }
+    $users = User::whereNotNull('phone')->get();
 
+    foreach ($users as $user) {
+        $phone = $user->phone;
+
+        if (str_starts_with($phone, '0')) {
+            $phone = '212' . substr($phone, 1);
+        }
+
+        $res = $sms->send(
+            $phone,
+            "Nouvelle catastrophe: {$catastrophe->title}"
+        );
+
+        Log::info($res->body());
+    }
+
+} catch (\Exception $e) {
+    Log::error('SMS error: ' . $e->getMessage());
+}
             return response()->json([
                 'success' => true,
                 'message' => 'Catastrophe created successfully',
