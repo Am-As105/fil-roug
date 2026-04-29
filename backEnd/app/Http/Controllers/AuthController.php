@@ -23,7 +23,7 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'phone' => $validated['telephone'],
             'adress' => $validated['adress'],
-            'password' => $validated['password'],
+            'password' => Hash::make($validated['password']),
             'role' => 'citizen',
         ]);
 
@@ -72,6 +72,15 @@ class AuthController extends Controller
                 'adress' => $user->adress,
                 'role' => $role,
             ],
+        ]);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'Logged out successfully'
         ]);
     }
 }

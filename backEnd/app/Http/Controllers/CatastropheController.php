@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Models\User;
+use App\Services\SmsService;
+
 
 class CatastropheController extends Controller
 {
@@ -57,7 +59,7 @@ class CatastropheController extends Controller
             try {
                 $users = User::whereNotNull('email')->get();
                 foreach ($users as $user) {
-    Mail::html("
+    Mail::html(" 
         <h2>Nouvelle catastrophe</h2>
         <p><strong>Titre:</strong> {$catastrophe->title}</p>
         <p><strong>Description:</strong> {$catastrophe->description}</p>
