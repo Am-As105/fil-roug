@@ -82,16 +82,23 @@ class CatastropheController extends Controller
             } catch (\Exception $e) {
                 Log::error($e->getMessage());
             }
-            $sms = new SmsService();
 
-$res = $sms->send(
-    "212612013501",
-    "test from laravel"
-);
+            try {
+    $sms = new SmsService();
 
-dd($res->body());
+    $phone = "212612013501";
 
-             
+    $response = $sms->send(
+        $phone,
+        "test sms from laravel"
+    );
+
+    Log::info($response->body());
+
+} catch (\Exception $e) {
+    Log::error("SMS ERROR: " . $e->getMessage());
+}
+           
 
 
             return response()->json([
