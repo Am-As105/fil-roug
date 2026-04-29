@@ -174,7 +174,7 @@ class CatastropheController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Deleted successfully'
-            ]);
+            ]); 
 
         } catch (\Throwable $e) {
             Log::error($e->getMessage());
