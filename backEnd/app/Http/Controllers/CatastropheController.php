@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use App\Services\SmsService;
 
-
 class CatastropheController extends Controller
 {
     public function index()
@@ -24,7 +23,7 @@ class CatastropheController extends Controller
     {
         $catastrophe = Catastrophe::with('type')->find($id);
 
-        if (!$catastrophe){
+        if (!$catastrophe) {
             return response()->json([
                 'success' => false,
                 'message' => 'Not found'
@@ -57,32 +56,45 @@ class CatastropheController extends Controller
             $catastrophe = Catastrophe::create($validated);
 
             try {
-                $users = User::whereNotNull('email')->get();
-                foreach ($users as $user) {
-    Mail::html(" 
-        <h2>Nouvelle catastrophe</h2>
-        <p><strong>Titre:</strong> {$catastrophe->title}</p>
-        <p><strong>Description:</strong> {$catastrophe->description}</p>
-        <p><strong>Date:</strong> {$catastrophe->date}</p>
-        <p><strong>Gravité:</strong> {$catastrophe->severity}</p>
-        <p><strong>Status:</strong> {$catastrophe->status}</p>
-        <p><strong>Latitude:</strong> {$catastrophe->latitude}</p>
-        <p><strong>Longitude:</strong> {$catastrophe->longitude}</p>
-        <p><strong>Victimes:</strong> {$catastrophe->victims}</p>
-        <p><strong>Blessés:</strong> {$catastrophe->injured}</p>
-        <p><strong>Dégâts:</strong> {$catastrophe->damage} DH</p>
-        <br>
-        <a href='https://savehaven.aminearar.com/details.html?id={$catastrophe->id}'>
-            Voir plus de détails
-        </a>
-    ", function ($message) use ($user) {
-        $message->to($user->email)
-                ->subject("Nouvelle Catastrophe");
-    });
-}
-
+                $usersEmail = User::whereNotNull('email')->get();
+                foreach ($usersEmail as $user) {
+                    Mail::html("
+                        <h2>Nouvelle catastrophe</h2>
+                        <p><strong>Titre:</strong> {$catastrophe->title}</p>
+                        <p><strong>Description:</strong> {$catastrophe->description}</p>
+                        <p><strong>Date:</strong> {$catastrophe->date}</p>
+                        <p><strong>Gravité:</strong> {$catastrophe->severity}</p>
+                        <p><strong>Status:</strong> {$catastrophe->status}</p>
+                        <p><strong>Latitude:</strong> {$catastrophe->latitude}</p>
+                        <p><strong>Longitude:</strong> {$catastrophe->longitude}</p>
+                        <p><strong>Victimes:</strong> {$catastrophe->victims}</p>
+                        <p><strong>Blessés:</strong> {$catastrophe->injured}</p>
+                        <p><strong>Dégâts:</strong> {$catastrophe->damage} DH</p>
+                        <br>
+                        <a href='https://savehaven.aminearar.com/details.html?id={$catastrophe->id}'>
+                            Voir plus de détails
+                        </a>
+                    ", function ($message) use ($user) {
+                        $message->to($user->email)
+                                ->subject("Nouvelle Catastrophe");
+                    });
+                }
             } catch (\Exception $e) {
-                Log::error("Email failed: " . $e->getMessage());
+                Log::error($e->getMessage());
+            }
+
+            try {
+                $sms = new SmsService();
+                $usersPhone = User::whereNotNull('telephone')->get();
+
+                foreach ($usersPhone as $user) {
+                    $sms->send(
+                        $user->telephone,
+                        "Nouvelle catastrophe: {$catastrophe->title}"
+                    );
+                }
+            } catch (\Exception $e) {
+                Log::error($e->getMessage());
             }
 
             return response()->json([
@@ -136,7 +148,7 @@ class CatastropheController extends Controller
             ]);
 
         } catch (\Throwable $e) {
-            Log::error('Update error: ' . $e->getMessage());
+            Log::error($e->getMessage());
 
             return response()->json([
                 'success' => false,
@@ -165,7 +177,7 @@ class CatastropheController extends Controller
             ]);
 
         } catch (\Throwable $e) {
-            Log::error('Delete error: ' . $e->getMessage());
+            Log::error($e->getMessage());
 
             return response()->json([
                 'success' => false,
