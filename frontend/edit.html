@@ -6,82 +6,104 @@
   <title>Modifier - SafeHaven</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
-    main.container {
-      padding: 60px 10%;
-      background-color: #f4f5f9;
-      min-height: calc(100vh - 400px);
-    }
+    :root {
+    --primary: #8b2ff5;
+    --base-bg: #0a0a0c;
+    --base-surface: #121217;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --text-main: #ffffff;
+    --text-muted: #8a8a93;
+}
 
-    #editForm {
-      background: #ffffff;
-      border: 1px solid #d1d6e6;
-      border-radius: 2px;
-      padding: 40px;
-      max-width: 800px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
+main.container {
+    background-color: var(--base-bg);
+    color: var(--text-main);
+}
 
-    #editForm h2 {
-      grid-column: span 2;
-      font-size: 24px;
-      color: #121c2d;
-      margin-bottom: 10px;
-      border-bottom: 1px solid #d1d6e6;
-      padding-bottom: 15px;
-    }
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
 
-    .field-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+.stat {
+    background: var(--base-surface);
+    border: 1px solid var(--border-subtle);
+    padding: 2rem;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
 
-    .full-width {
-      grid-column: span 2;
-    }
+.stat h3 {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 0;
+}
 
-    #editForm label {
-      font-size: 13px;
-      font-weight: 700;
-      color: #606b85;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+.stat span {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--primary);
+}
 
-    #editForm input, 
-    #editForm select {
-      height: 48px;
-      padding: 0 16px;
-      border: 1px solid #d1d6e6;
-      border-radius: 2px;
-      font-size: 14px;
-      background-color: #fff;
-    }
+#editForm {
+    background: var(--base-surface);
+    border: 1px solid var(--border-subtle);
+    padding: 3rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    border-radius: 0;
+}
 
-    #editForm input:focus {
-      outline: none;
-      border-color: #001489;
-    }
+#editForm h2 {
+    grid-column: span 2;
+    border-left: 4px solid var(--primary);
+    padding-left: 1rem;
+    color: var(--text-main);
+}
 
-    #editForm button[type="submit"] {
-      grid-column: span 2;
-      height: 50px;
-      background-color: #f22f46;
-      color: #fff;
-      border: none;
-      font-weight: 700;
-      font-size: 16px;
-      cursor: pointer;
-      margin-top: 20px;
-    }
+.field-group label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
 
-    @media (max-width: 768px) {
-      #editForm { grid-template-columns: 1fr; padding: 20px; }
-      #editForm h2, .full-width, #editForm button { grid-column: span 1; }
+#editForm input, 
+#editForm select {
+    background: #1a1a21;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-main);
+    height: 50px;
+    border-radius: 0;
+}
+
+#editForm input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+#editForm button[type="submit"] {
+    grid-column: span 2;
+    background: var(--primary);
+    color: white;
+    border: none;
+    height: 55px;
+    font-weight: 800;
+    text-transform: uppercase;
+    border-radius: 0;
+}
+
+@media (max-width: 768px) {
+    #editForm, .stats {
+        grid-template-columns: 1fr;
     }
+}
   </style>
 </head>
 <body>
@@ -109,6 +131,7 @@
 
   <main class="container">
 <form id="editForm">
+  <br> <br>
 
   <h2>Modifier le signalement</h2>
 

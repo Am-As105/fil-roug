@@ -25,7 +25,7 @@ const loginForm = document.getElementById("loginForm");
 const loginMessage = document.getElementById("loginMessage");
 const logoutBtn = document.getElementById("logoutBtn");
 const mapElement = document.getElementById("map");
-let markersLayer = null;
+let markersLayer = null;  
 
 
 function escapeHtml(value = "") {
@@ -72,17 +72,12 @@ function openAddForm() {
 }
 
 
-// if (navbar && menuBtn) {
-//   menuBtn.addEventListener("click", () => {
-//     const isOpen = navbar.classList.toggle("is-open");
-//     menuBtn.setAttribute("aria-expanded", String(isOpen));
-//   });
-// }
+
 if (!isLoggedIn) {
   document.querySelectorAll(".nav-primary, #logoutBtn").forEach(el => {
     el.style.display = "none";
   });
-}
+} 
 
 if (!isAdmin) {
   if (addBtn) addBtn.style.display = "none";
@@ -108,7 +103,7 @@ function renderCard(disaster) {
   const severity = escapeHtml(disaster.severity || "Non précisée");
   const statusText = escapeHtml(disaster.status || "Inconnu");
   const statusClass = getStatusClass(disaster.status);
-const imageUrl = escapeHtml(disaster.image_url || "img/wp2381593-natural-disasters-wallpapers.jpg");  return `<article class="card" data-status="${statusClass}"><div class="card-image"><img src="${imageUrl}" alt="${title}"></div><div class="card-content"><div class="card-head"><span class="badge ${statusClass}">${statusText}</span><span class="card-date">${date}</span></div><p class="card-label">Zone signalée</p><h3>${title}</h3><p class="card-summary">${description}</p><div class="card-meta"><div class="card-meta-item"><span>Sévérité</span><strong>${severity}</strong></div><div class="card-meta-item"><span>Date</span><strong>${date}</strong></div></div><div class="card-actions"><a href="details.html?id=${disaster.id}" class="btn-details">Voir les détails</a>${isAdmin ? `<a href="edit.html?id=${disaster.id}" class="btn-edit">Modifier</a>` : ""}${isAdmin ? `<button class="btn-delete" onclick="deleteDisaster(${disaster.id})" type="button">Supprimer</button>` : ""}</div></div></article>`;
+const imageUrl = escapeHtml(disaster.image_url || "/wp2381593-natural-disasters-wallpapers.jpg");  return `<article class="card" data-status="${statusClass}"><div class="card-image"><img src="${imageUrl}" alt="${title}"></div><div class="card-content"><div class="card-head"><span class="badge ${statusClass}">${statusText}</span><span class="card-date">${date}</span></div><p class="card-label">Zone signalée</p><h3>${title}</h3><p class="card-summary">${description}</p><div class="card-meta"><div class="card-meta-item"><span>Sévérité</span><strong>${severity}</strong></div><div class="card-meta-item"><span>Date</span><strong>${date}</strong></div></div><div class="card-actions"><a href="details.html?id=${disaster.id}" class="btn-details">Voir les détails</a>${isAdmin ? `<a href="edit.html?id=${disaster.id}" class="btn-edit">Modifier</a>` : ""}${isAdmin ? `<button class="btn-delete" onclick="deleteDisaster(${disaster.id})" type="button">Supprimer</button>` : ""}</div></div></article>`;
 }
 
 
@@ -125,7 +120,7 @@ function renderMarkers(list)
       L.marker([lat, lng]).addTo(markersLayer).bindPopup(`<b>${escapeHtml(disaster.title || "")}</b><br>${escapeHtml(disaster.description || "")}`);
     }
   });
-}
+} 
 
 
 
@@ -160,28 +155,7 @@ function applyFilters() {
 }
 
 
-// function renderDisasters(list) {
-//   if (!cardsContainer) return;
-//   if (!list.length) {
-//     cardsContainer.innerHTML = "";
-//     updateStats(0, 0, 0);
-//     toggleEmpty(true, "Aucun signalement disponible pour le moment.");
-//     renderMarkers([]);
-//     return;
-//   }
-//   let critical = 0;
-//   let progress = 0;
-//   list.forEach(disaster => {
-//     const status = getStatusClass(disaster.status);
-//     if (status === "critical") critical++;
-//     if (status === "progress") progress++;
-//   });
-//   cardsContainer.innerHTML = list.map(renderCard).join("");
-//   updateStats(list.length, critical, progress);
-//   toggleEmpty(false);
-//   renderMarkers(list);
-//   applyFilters();
-// }
+
 
 function renderDisasters(list) {
   if (!cardsContainer) return;
@@ -236,7 +210,8 @@ if (searchInput && cardsContainer) searchInput.addEventListener("input", applyFi
 if (filterSelect && cardsContainer) filterSelect.addEventListener("change", applyFilters);
 
 
-if (disasterForm) {
+if (disasterForm) 
+  {
   disasterForm.addEventListener("submit", async function (e) {
     e.preventDefault();
     setMessage(formMessage, "Envoi...", "blue");
@@ -247,22 +222,24 @@ if (disasterForm) {
         body: JSON.stringify({
           title: this.title.value,
           description: this.description.value,
-          latitude: this.latitude.value,
-          longitude: this.longitude.value,
+           latitude: parseFloat(this.latitude.value),
+          longitude: parseFloat(this.longitude.value),
           date: this.date.value,
           severity: this.severity.value,
           status: this.status.value,
           type_id: this.type_id.value,
-          victims: this.victims.value,
-          injured: this.injured.value,
-          damage: this.damage.value
+          victims: parseInt(this.victims.value) || 0,
+        injured: parseInt(this.injured.value) || 0,
+        damage: parseFloat(this.damage.value) || 0,
         })
       });
      const data = await response.json().catch(() => ({}));
 
-if (!response.ok){
-  console.error(data);
-  throw new Error(data.message || "Erreur");
+if (!response.ok)
+  
+  {
+ 
+  
 }
       setMessage(formMessage, "Catastrophe ajoutée avec succès", "green");
       this.reset();
@@ -284,7 +261,7 @@ function deleteDisaster(id) {
 }
 window.deleteDisaster = deleteDisaster;
 
-// Lookup data
+
 async function loadCities() {
   if (!citySelect) return;
   try {
@@ -296,7 +273,9 @@ async function loadCities() {
     citySelect.innerHTML = "<option value=\"\">Erreur de chargement</option>";
   }
 }
-async function loadTypes() {
+
+async function loadTypes()
+ {
   if (!typeSelect) return;
   try {
     const data = await requestJson(`${API_BASE_URL}/types`);
@@ -306,6 +285,9 @@ async function loadTypes() {
     typeSelect.innerHTML = "<option value=\"\">Erreur de chargement</option>";
   }
 }
+
+
+
 
 
 if (registerForm) {
@@ -322,7 +304,7 @@ if (registerForm) {
           adress: this.adress.value,
           password: this.password.value
         }) 
-      });
+      });  
       if (!response.ok) throw new Error();
       setMessage(registerMessage, "Compte créé avec succès", "green");
       registerForm.reset();
@@ -332,6 +314,8 @@ if (registerForm) {
     }
   });
 }
+
+
 if (loginForm) {
   loginForm.addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -355,6 +339,7 @@ if (loginForm) {
     }
   });
 }
+
 if (logoutBtn) {
   logoutBtn.addEventListener("click", () => {
     localStorage.removeItem("token");
@@ -368,7 +353,7 @@ if (mapElement && typeof L !== "undefined") {
   const map = L.map("map").setView([31.7917, -7.0926], 6);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
   markersLayer = L.layerGroup().addTo(map);
-}
+} 
 
 loadCities(); 
 loadTypes();
@@ -379,7 +364,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const menuBtn = document.querySelector(".menu-btn");
   const nav = document.querySelector(".nav");
 
-  if (!menuBtn || !nav) return;
+if (!menuBtn || !nav) return;
 
   menuBtn.addEventListener("click", function () {
     nav.classList.toggle("is-open");

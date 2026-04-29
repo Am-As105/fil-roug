@@ -11,6 +11,8 @@ function normalizeDetailsKey(value = "") {
     .replace(/[^a-z0-9]+/g, "");
 }
 
+
+
 function getDetailsStatusVariant(status = "") {
   const key = normalizeDetailsKey(status);
 
@@ -21,9 +23,10 @@ function getDetailsStatusVariant(status = "") {
   return "muted";
 }
 
-function setDetailsText(id, value) {
+function setDetailsText(id, value)
+ {
   const el = document.getElementById(id);
-  if (el) el.innerText = value;
+  if (el) el.innerText = value; 
 }
 
 function updateDetailsTimeline(status) {
@@ -57,7 +60,7 @@ function updateDetailsProgress(status) {
 
   if (["encours","progress","high","critique","critical"].includes(key)) {
     percent = 66;
-    label = "Incident en cours";
+    label = "Incident en cours"; 
   }
 
   if (["termine","terminee","resolved"].includes(key)) {
@@ -110,7 +113,7 @@ function renderDetailsMap(disaster) {
   } else if (severity === "medium") {
     color = "yellow";
     radius = 1200;
-  }
+  } 
 
   L.marker([lat, lng])
     .addTo(window.detailsMap)
@@ -133,7 +136,7 @@ function renderDetailsDisaster(d) {
   setDetailsText("title", d.title || "Non défini");
   setDetailsText("desc", d.description || "Non précisé");
   setDetailsText("date", d.date || "-");
-  setDetailsText("severity", d.severity || "-");
+  setDetailsText("severity", d.severity || "-"); 
   setDetailsText("lat", d.latitude || "-");
   setDetailsText("lng", d.longitude || "-");
   setDetailsText("victims", d.victims ?? 0);
