@@ -34,35 +34,35 @@ function escapeHtml(value = "") {
 function cleanText(value = "") {
   return String(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
-function getStatusClass(status = "") {
-  const value = cleanText(status);
-  if (value.includes("crit")) return "critical";
-  if (value.includes("en cours") || value.includes("progress")) return "progress";
-  if (value.includes("elevee") || value.includes("high")) return "high";
-  return "neutral";
-}
+
+
+
+
 async function requestJson(url, options = {}) {
   const response = await fetch(url, options);
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.message || "Erreur");
-  return data;
-}
+  return data; 
+} 
+
 function updateStats(total, critical, progress) {
   if (totalCount) totalCount.innerText = total;
   if (criticalCount) criticalCount.innerText = critical;
   if (progressCount) progressCount.innerText = progress;
   if (recordsCount) recordsCount.innerText = `${total} entrée${total === 1 ? "" : "s"}`;
-}
+} 
 function toggleEmpty(show, text = "") {
   if (!recordsEmpty) return;
   recordsEmpty.innerText = show ? text : "";
   recordsEmpty.classList.toggle("hidden", !show);
 }
+
 function setMessage(element, text, color) {
   if (!element) return;
   element.innerText = text;
   element.style.color = color;
 }
+
 function openAddForm() {
   if (!addSection) return;
   addSection.classList.remove("is-hidden");
@@ -77,12 +77,13 @@ if (!isLoggedIn) {
   document.querySelectorAll(".nav-primary, #logoutBtn").forEach(el => {
     el.style.display = "none";
   });
-} 
+}  
 
-if (!isAdmin) {
+if (!isAdmin)
+{
   if (addBtn) addBtn.style.display = "none";
   if (addSection) addSection.style.display = "none";
-}
+} 
 
 if (addBtn && addSection) {
   addBtn.addEventListener("click", e => {
@@ -95,7 +96,7 @@ if (addSection && isAdmin && window.location.hash === "#add-disaster") {
   requestAnimationFrame(openAddForm);
 }
 
-//
+//card info
 function renderCard(disaster) {
   const title = escapeHtml(disaster.title || "Signalement");
   const description = escapeHtml(disaster.description || "Zone non précisée");
@@ -104,7 +105,7 @@ function renderCard(disaster) {
   const statusText = escapeHtml(disaster.status || "Inconnu");
   const statusClass = getStatusClass(disaster.status);
 const imageUrl = escapeHtml(disaster.image_url || "/wp2381593-natural-disasters-wallpapers.jpg");  return `<article class="card" data-status="${statusClass}"><div class="card-image"><img src="${imageUrl}" alt="${title}"></div><div class="card-content"><div class="card-head"><span class="badge ${statusClass}">${statusText}</span><span class="card-date">${date}</span></div><p class="card-label">Zone signalée</p><h3>${title}</h3><p class="card-summary">${description}</p><div class="card-meta"><div class="card-meta-item"><span>Sévérité</span><strong>${severity}</strong></div><div class="card-meta-item"><span>Date</span><strong>${date}</strong></div></div><div class="card-actions"><a href="details.html?id=${disaster.id}" class="btn-details">Voir les détails</a>${isAdmin ? `<a href="edit.html?id=${disaster.id}" class="btn-edit">Modifier</a>` : ""}${isAdmin ? `<button class="btn-delete" onclick="deleteDisaster(${disaster.id})" type="button">Supprimer</button>` : ""}</div></div></article>`;
-}
+} 
 
 
 function renderMarkers(list)
@@ -118,7 +119,7 @@ function renderMarkers(list)
     const lng = parseFloat(disaster.longitude);
     if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
       L.marker([lat, lng]).addTo(markersLayer).bindPopup(`<b>${escapeHtml(disaster.title || "")}</b><br>${escapeHtml(disaster.description || "")}`);
-    }
+    } 
   });
 } 
 
@@ -175,7 +176,7 @@ function renderDisasters(list) {
     const status = getStatusClass(d.status);
     if (status === "critical") critical++;
     if (status === "progress") progress++;
-  });
+  }); 
 
 cardsContainer.innerHTML = list.slice().reverse().map(renderCard).join("");
   updateStats(list.length, critical, progress);
@@ -286,7 +287,13 @@ async function loadTypes()
   }
 }
 
-
+function getStatusClass(status = "") {
+  const value = cleanText(status);
+  if (value.includes("crit")) return "critical";
+  if (value.includes("en cours") || value.includes("progress")) return "progress";
+  if (value.includes("elevee") || value.includes("high")) return "high";
+  return "neutral";
+}
 
 
 
@@ -382,7 +389,7 @@ if (!menuBtn || !nav) return;
     }
   });
 
-});
+}); 
 
 
 const liveList = document.getElementById("liveList");

@@ -75,30 +75,31 @@ class CatastropheController extends Controller
                             Voir plus de détails
                         </a>
                     ", function ($message) use ($user) {
-                        $message->to($user->email)
-                                ->subject("Nouvelle Catastrophe");
+                        $message->to($user->email)->subject("Nouvelle Catastrophe");
                     });
                 }
             } catch (\Exception $e) {
                 Log::error($e->getMessage());
             }
 
-            try {
+          try {
     $sms = new SmsService();
 
     $phone = "212612013501";
 
-    $response = $sms->send(
-        $phone,
-        "test sms from laravel"
-    );
+    $message = "Catastrophe 
+    Titre: {$catastrophe->title}
+    Adresse: {$catastrophe->description}
+    Localisation: {$catastrophe->latitude}, {$catastrophe->longitude}
+    Voir: https://savehaven.aminearar.com/details.html?id={$catastrophe->id}";
 
-    Log::info($response->body());
+        $response = $sms->send($phone, $message);
 
-} catch (\Exception $e) {
-    Log::error("SMS ERROR: " . $e->getMessage());
-}
-           
+            Log::info($response->body());
+
+    } catch (\Exception $e) {
+        Log::error("SMS ERROR: " . $e->getMessage());
+    }
 
 
             return response()->json([

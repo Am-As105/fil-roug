@@ -36,7 +36,7 @@ function updateDetailsTimeline(status) {
   steps.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.remove("active");
-  });
+  }); 
 
   document.getElementById("step-start")?.classList.add("active");
 
